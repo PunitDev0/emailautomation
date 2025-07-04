@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { ChevronRight, ChevronLeft, Mail, Users, FileText, Eye, Send, CheckCircle, XCircle, Clock } from "lucide-react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -10,23 +10,15 @@ import { Progress } from "@/components/ui/progress"
 import { Badge } from "@/components/ui/badge"
 import { toast } from "sonner"
 
-const mockContactLists = [
-  { id: "1", name: "All Contacts", count: 150 },
-  { id: "2", name: "Tech Companies", count: 45 },
-  { id: "3", name: "Recent Signups", count: 23 },
-  { id: "4", name: "VIP Customers", count: 12 },
-]
-
 const mockTemplates = [
   { id: "1", title: "Welcome Template", subject: "Welcome to {{company}}!" },
   { id: "2", title: "Product Launch Template", subject: "Exciting News: New Product Launch!" },
   { id: "3", title: "Newsletter Template", subject: "Monthly Newsletter - {{company}}" },
 ]
 
-export function SendEmailsPage({
-  userRole
-}) {
+export function SendEmailsPage({ userRole }) {
   const [currentStep, setCurrentStep] = useState(1)
+  const [contactLists, setContactLists] = useState([])
   const [selectedContactList, setSelectedContactList] = useState("")
   const [selectedTemplate, setSelectedTemplate] = useState("")
   const [emailSubject, setEmailSubject] = useState("")
@@ -42,6 +34,27 @@ export function SendEmailsPage({
     { number: 4, title: "Preview & Send", icon: Eye },
   ]
 
+  // Fetch contact lists on mount
+  useEffect(() => {
+    const fetchContactLists = async () => {
+      try {
+        const response = await fetch('/api/contacts/lists');
+        if (!response.ok) {
+          throw new Error('Failed to fetch contact lists');
+        }
+        const lists = await response.json();
+        setContactLists(lists);
+      } catch (error) {
+        toast({
+          title: "Error fetching contact lists",
+          description: error.message,
+          variant: "destructive",
+        });
+      }
+    };
+    fetchContactLists();
+  }, []);
+
   const handleTemplateSelect = (templateId) => {
     setSelectedTemplate(templateId)
     const template = mockTemplates.find((t) => t.id === templateId)
@@ -54,34 +67,55 @@ export function SendEmailsPage({
     setIsSending(true)
     setSendProgress(0)
 
-    if (scheduled) {
+    try {
+      // Simulate progress for immediate sending
+      if (!scheduled) {
+        for (let i = 0; i <= 100; i += 10) {
+          setSendProgress(i)
+          await new Promise((resolve) => setTimeout(resolve, 200))
+        }
+      }
+
+      const response = await fetch('/api/emails/send', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          listName: contactLists.find((l) => l.id === selectedContactList)?.name,
+          subject: emailSubject,
+          templateId: selectedTemplate,
+          scheduleDate: scheduled ? scheduleDate : undefined,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        if (scheduled) {
+          toast({
+            title: "Email scheduled",
+            description: `Your email campaign has been scheduled for ${new Date(scheduleDate).toLocaleDateString()}.`,
+          });
+        } else {
+          setSendResults({ sent: result.sent, failed: result.failed });
+          toast({
+            title: "Email campaign completed",
+            description: `${result.sent} emails sent successfully, ${result.failed} failed.`,
+          });
+        }
+      } else {
+        throw new Error(result.message || 'Failed to send emails');
+      }
+    } catch (error) {
       toast({
-        title: "Email scheduled",
-        description: `Your email campaign has been scheduled for ${new Date(scheduleDate).toLocaleDateString()}.`,
-      })
-      setIsSending(false)
-      return
+        title: "Error sending emails",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setIsSending(false);
     }
-
-    // Simulate sending progress
-    for (let i = 0; i <= 100; i += 10) {
-      setSendProgress(i)
-      await new Promise((resolve) => setTimeout(resolve, 200))
-    }
-
-    // Simulate results
-    const contactList = mockContactLists.find((list) => list.id === selectedContactList)
-    const totalContacts = contactList?.count || 0
-    const failed = Math.floor(Math.random() * 3) + 1
-    const sent = totalContacts - failed
-
-    setSendResults({ sent, failed })
-    setIsSending(false)
-
-    toast({
-      title: "Email campaign completed",
-      description: `${sent} emails sent successfully, ${failed} failed.`,
-    })
   }
 
   const nextStep = () => {
@@ -178,7 +212,7 @@ export function SendEmailsPage({
                   <SelectValue placeholder="Choose a contact list" />
                 </SelectTrigger>
                 <SelectContent>
-                  {mockContactLists.map((list) => (
+                  {contactLists.map((list) => (
                     <SelectItem key={list.id} value={list.id}>
                       {list.name} ({list.count} contacts)
                     </SelectItem>
@@ -188,8 +222,8 @@ export function SendEmailsPage({
               {selectedContactList && (
                 <div className="p-3 bg-blue-50 rounded-lg">
                   <p className="text-sm text-blue-800">
-                    Selected: {mockContactLists.find((l) => l.id === selectedContactList)?.name} (
-                    {mockContactLists.find((l) => l.id === selectedContactList)?.count} contacts)
+                    Selected: {contactLists.find((l) => l.id === selectedContactList)?.name} (
+                    {contactLists.find((l) => l.id === selectedContactList)?.count} contacts)
                   </p>
                 </div>
               )}
@@ -255,8 +289,8 @@ export function SendEmailsPage({
                     <div className="text-sm space-y-1">
                       <p>
                         <strong>Contact List:</strong>{" "}
-                        {mockContactLists.find((l) => l.id === selectedContactList)?.name} (
-                        {mockContactLists.find((l) => l.id === selectedContactList)?.count} contacts)
+                        {contactLists.find((l) => l.id === selectedContactList)?.name} (
+                        {contactLists.find((l) => l.id === selectedContactList)?.count} contacts)
                       </p>
                       <p>
                         <strong>Template:</strong> {mockTemplates.find((t) => t.id === selectedTemplate)?.title}
@@ -275,16 +309,16 @@ export function SendEmailsPage({
                     <h4 className="font-medium mb-2">Sample Email Preview</h4>
                     <div className="text-sm">
                       <p>
-                        <strong>To:</strong> alice@example.com
+                        <strong>To:</strong> example@domain.com
                       </p>
                       <p>
-                        <strong>Subject:</strong> Welcome to TechCorp!
+                        <strong>Subject:</strong> {emailSubject.replace('{{company}}', 'Our Company')}
                       </p>
                       <div className="mt-2 p-3 bg-white rounded border">
-                        Hello Alice,
+                        Hello Example,
                         <br />
                         <br />
-                        Welcome to TechCorp! We're excited to have you on board.
+                        {mockTemplates.find((t) => t.id === selectedTemplate)?.title} content goes here.
                         <br />
                         <br />
                         Best regards,

@@ -3,50 +3,94 @@ import { useState } from "react"
 import { Upload, FileText, Check, Users } from "lucide-react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { useToast } from "@/hooks/use-toast"
-
-const mockContactData = [
-  { name: "Alice Roy", email: "alice@example.com", company: "TechCorp", custom1: "Alpha", custom2: "India" },
-  { name: "John Doe", email: "john@example.com", company: "DevHouse", custom1: "Beta", custom2: "USA" },
-  { name: "Jane Smith", email: "jane@example.com", company: "CloudBase", custom1: "Gamma", custom2: "UK" },
-  { name: "Bob Wilson", email: "bob@example.com", company: "StartupXYZ", custom1: "Delta", custom2: "Canada" },
-  {
-    name: "Sarah Johnson",
-    email: "sarah@example.com",
-    company: "InnovateLab",
-    custom1: "Epsilon",
-    custom2: "Australia",
-  },
-  { name: "Mike Chen", email: "mike@example.com", company: "DataFlow", custom1: "Zeta", custom2: "Singapore" },
-]
+import { toast } from "sonner"
+import * as XLSX from "xlsx"
 
 export function UploadContactsPage() {
   const [uploadedFile, setUploadedFile] = useState(null)
   const [showPreview, setShowPreview] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
-  const { toast } = useToast()
+  const [contactData, setContactData] = useState([])
+  const [listName, setListName] = useState("")
 
   const handleFileUpload = (event) => {
     const file = event.target.files?.[0]
     if (file) {
       setUploadedFile(file)
-      setShowPreview(true)
-      toast({
-        title: "File uploaded successfully",
-        description: `${file.name} has been processed and is ready for preview.`,
-      })
+      
+      const reader = new FileReader()
+      reader.onload = (e) => {
+        const data = new Uint8Array(e.target.result)
+        const workbook = XLSX.read(data, { type: 'array' })
+        
+        const firstSheetName = workbook.SheetNames[0]
+        const worksheet = workbook.Sheets[firstSheetName]
+        
+        const jsonData = XLSX.utils.sheet_to_json(worksheet)
+        
+        const formattedData = jsonData.map(row => ({
+          name: row.Name && row.Name.trim() ? row.Name : 'Unknown',
+          email: row.Email || '',
+          company: row.Company || '',
+          custom1: row.Custom1 || '',
+          custom2: row.Custom2 || ''
+        }))
+        
+        setContactData(formattedData)
+        setShowPreview(true)
+        
+        toast({
+          title: "File uploaded successfully",
+          description: `${file.name} has been processed with ${formattedData.length} contacts.`,
+        })
+      }
+      
+      reader.readAsArrayBuffer(file)
     }
   }
 
   const handleSaveContacts = async () => {
+    if (!listName.trim()) {
+      toast({
+        title: "List name required",
+        description: "Please enter a name for the contact list.",
+        variant: "destructive",
+      })
+      return
+    }
+
     setIsSaving(true)
-    await new Promise((resolve) => setTimeout(resolve, 2000))
-    setIsSaving(false)
-    toast({
-      title: "Contacts saved successfully",
-      description: `${mockContactData.length} contacts have been saved to your database.`,
-    })
+    try {
+      const response = await fetch('/api/contacts/save', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ contacts: contactData, listName }),
+      })
+
+      const result = await response.json()
+
+      if (response.ok) {
+        toast({
+          title: "Contacts saved successfully",
+          description: `${result.count} contacts have been saved to list "${result.listName}".`,
+        })
+        setListName("") // Reset list name after saving
+      } else {
+        throw new Error(result.message || 'Failed to save contacts')
+      }
+    } catch (error) {
+      toast({
+        title: "Error saving contacts",
+        description: error.message,
+        variant: "destructive",
+      })
+    } finally {
+      setIsSaving(false)
+    }
   }
 
   return (
@@ -58,7 +102,7 @@ export function UploadContactsPage() {
         </div>
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <Users className="h-4 w-4" />
-          <span>{showPreview ? mockContactData.length : 0} contacts loaded</span>
+          <span>{showPreview ? contactData.length : 0} contacts loaded</span>
         </div>
       </div>
       <Card>
@@ -101,10 +145,23 @@ export function UploadContactsPage() {
           <CardHeader>
             <CardTitle>Contact Preview</CardTitle>
             <CardDescription>
-              Preview of your uploaded contacts ({mockContactData.length} records found)
+              Preview of your uploaded contacts ({contactData.length} records found)
             </CardDescription>
           </CardHeader>
           <CardContent>
+            <div className="mb-4">
+              <label htmlFor="list-name" className="block text-sm font-medium text-gray-700">
+                List Name
+              </label>
+              <Input
+                id="list-name"
+                type="text"
+                value={listName}
+                onChange={(e) => setListName(e.target.value)}
+                placeholder="Enter a name for this contact list"
+                className="mt-1"
+              />
+            </div>
             <div className="rounded-md border overflow-hidden">
               <Table>
                 <TableHeader>
@@ -117,7 +174,7 @@ export function UploadContactsPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {mockContactData.map((contact, index) => (
+                  {contactData.map((contact, index) => (
                     <TableRow key={index}>
                       <TableCell className="font-medium">{contact.name}</TableCell>
                       <TableCell>{contact.email}</TableCell>
@@ -130,8 +187,8 @@ export function UploadContactsPage() {
               </Table>
             </div>
             <div className="mt-4 flex justify-between items-center">
-              <p className="text-sm text-muted-foreground">All contacts will be added to your default contact list</p>
-              <Button onClick={handleSaveContacts} disabled={isSaving}>
+              <p className="text-sm text-muted-foreground">All contacts will be added to the specified list</p>
+              <Button onClick={handleSaveContacts} disabled={isSaving || !listName.trim()}>
                 {isSaving ? "Saving..." : "Save Contacts"}
               </Button>
             </div>

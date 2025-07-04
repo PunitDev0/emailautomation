@@ -25,7 +25,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
-import { useToast } from "@/hooks/use-toast"
+import { toast } from "sonner"
 
 const mockContacts = [
   {
@@ -106,7 +106,6 @@ export function ContactsPage({
     company: "",
     tags: "",
   })
-  const { toast } = useToast()
 
   const filteredContacts = mockContacts.filter((contact) => {
     const matchesSearch =
