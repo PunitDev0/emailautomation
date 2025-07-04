@@ -1,7 +1,7 @@
 "use client"
 
-import EmailTemplateBuilder from '@/components/EmailBuilder/components/EmailTemplateBuilder'
+import EmailTemplateMaker from "@/components/email-template-maker"
 
 export default function EmailTemplatesPage() {
-  return <EmailTemplateBuilder />
+  return <EmailTemplateMaker />
 }
