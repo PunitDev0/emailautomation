@@ -90,7 +90,7 @@ export const metadata = {
 };
 
 // Error Boundary Component
-function ErrorBoundary({ children }: { children: React.ReactNode }) {
+function ErrorBoundary({ children }) {
   return (
     <Suspense fallback={<div>Loading...</div>}>
       {children}
@@ -98,7 +98,7 @@ function ErrorBoundary({ children }: { children: React.ReactNode }) {
   );
 }
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({ children }) {
   return (
     <html
       lang="en"
