@@ -6,7 +6,7 @@ export async function GET() {
 
     // Static pages
     const staticPages = [
-      ''
+      '/'
     ];
 
     // Generate sitemap XML
