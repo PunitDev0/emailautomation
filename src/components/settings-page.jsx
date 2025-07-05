@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 import { Separator } from "@/components/ui/separator"
 import { Badge } from "@/components/ui/badge"
-import { useToast } from "@/hooks/use-toast"
+import { toast } from "sonner"
 
 export function SettingsPage({
   userRole
@@ -29,7 +29,6 @@ export function SettingsPage({
   })
 
   const [isSaving, setIsSaving] = useState(false)
-  const { toast } = useToast()
 
   const handleSaveSettings = async () => {
     setIsSaving(true)
