@@ -1,10 +1,9 @@
-"use client";
+"use client"
+
 import { motion } from "framer-motion"
 
-export default function LoadingSpinner({
-  size = "md",
-  className = ""
-}) {
+
+export default function LoadingSpinner({ size = "md", className = "" }) {
   const sizeClasses = {
     sm: "w-4 h-4",
     md: "w-8 h-8",
@@ -20,7 +19,8 @@ export default function LoadingSpinner({
           duration: 1,
           repeat: Number.POSITIVE_INFINITY,
           ease: "linear",
-        }} />
+        }}
+      />
     </div>
-  );
+  )
 }

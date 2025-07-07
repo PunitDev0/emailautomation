@@ -1,4 +1,5 @@
-"use client";
+"use client"
+
 import { useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Store, Star, Download, Heart, Filter, Search, TrendingUp, Crown, Zap } from "lucide-react"
@@ -9,6 +10,8 @@ import { Input } from "@/components/ui/input"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+
+
 
 const marketplaceTemplates = [
   {
@@ -73,11 +76,7 @@ const marketplaceTemplates = [
   },
 ]
 
-export default function TemplateMarketplace({
-  isOpen,
-  onClose,
-  onPurchaseTemplate
-}) {
+export default function TemplateMarketplace({ isOpen, onClose, onPurchaseTemplate }) {
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedCategory, setSelectedCategory] = useState("all")
   const [sortBy, setSortBy] = useState("trending")
@@ -113,12 +112,14 @@ export default function TemplateMarketplace({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+        >
           <motion.div
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.9, opacity: 0 }}
-            className="bg-white rounded-2xl shadow-2xl w-full max-w-7xl h-[90vh] flex flex-col">
+            className="bg-white rounded-2xl shadow-2xl w-full max-w-7xl h-[90vh] flex flex-col"
+          >
             {/* Header */}
             <div className="p-6 border-b border-gray-200">
               <div className="flex items-center justify-between">
@@ -139,13 +140,13 @@ export default function TemplateMarketplace({
               {/* Search and Filters */}
               <div className="flex items-center space-x-4 mt-6">
                 <div className="relative flex-1">
-                  <Search
-                    className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                   <Input
                     placeholder="Search templates..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-10" />
+                    className="pl-10"
+                  />
                 </div>
                 <Button variant="outline" size="sm">
                   <Filter className="w-4 h-4 mr-2" />
@@ -170,7 +171,8 @@ export default function TemplateMarketplace({
                             selectedCategory === category
                               ? "bg-blue-100 text-blue-700"
                               : "text-gray-600 hover:bg-gray-100"
-                          }`}>
+                          }`}
+                        >
                           {category.charAt(0).toUpperCase() + category.slice(1)}
                         </button>
                       ))}
@@ -192,7 +194,8 @@ export default function TemplateMarketplace({
                           onClick={() => setSortBy(option.value)}
                           className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors flex items-center ${
                             sortBy === option.value ? "bg-blue-100 text-blue-700" : "text-gray-600 hover:bg-gray-100"
-                          }`}>
+                          }`}
+                        >
                           {option.icon && <option.icon className="w-4 h-4 mr-2" />}
                           {option.label}
                         </button>
@@ -222,14 +225,15 @@ export default function TemplateMarketplace({
                               initial={{ opacity: 0, y: 20 }}
                               animate={{ opacity: 1, y: 0 }}
                               transition={{ delay: index * 0.1 }}
-                              whileHover={{ y: -5 }}>
-                              <Card
-                                className="group cursor-pointer overflow-hidden hover:shadow-xl transition-all duration-300">
+                              whileHover={{ y: -5 }}
+                            >
+                              <Card className="group cursor-pointer overflow-hidden hover:shadow-xl transition-all duration-300">
                                 <div className="relative">
                                   <img
                                     src={template.thumbnail || "/placeholder.svg"}
                                     alt={template.name}
-                                    className="w-full h-48 object-cover" />
+                                    className="w-full h-48 object-cover"
+                                  />
 
                                   {/* Badges */}
                                   <div className="absolute top-2 left-2 flex flex-col space-y-1">
@@ -254,19 +258,21 @@ export default function TemplateMarketplace({
                                       e.stopPropagation()
                                       toggleLike(template.id)
                                     }}
-                                    className="absolute top-2 right-2 p-2 bg-white/80 backdrop-blur-sm rounded-full hover:bg-white transition-colors">
+                                    className="absolute top-2 right-2 p-2 bg-white/80 backdrop-blur-sm rounded-full hover:bg-white transition-colors"
+                                  >
                                     <Heart
                                       className={`w-4 h-4 ${
                                         likedTemplates.has(template.id) ? "text-red-500 fill-current" : "text-gray-600"
-                                      }`} />
+                                      }`}
+                                    />
                                   </button>
 
                                   {/* Overlay */}
-                                  <div
-                                    className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-300 flex items-center justify-center">
+                                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-300 flex items-center justify-center">
                                     <Button
                                       className="opacity-0 group-hover:opacity-100 transition-all duration-300 transform scale-90 group-hover:scale-100"
-                                      onClick={() => onPurchaseTemplate(template)}>
+                                      onClick={() => onPurchaseTemplate(template)}
+                                    >
                                       {template.price === 0 ? "Download Free" : `Buy for $${template.price}`}
                                     </Button>
                                   </div>
@@ -274,8 +280,7 @@ export default function TemplateMarketplace({
 
                                 <CardContent className="p-4">
                                   <div className="flex items-start justify-between mb-2">
-                                    <h3
-                                      className="font-semibold text-gray-800 group-hover:text-blue-600 transition-colors line-clamp-1">
+                                    <h3 className="font-semibold text-gray-800 group-hover:text-blue-600 transition-colors line-clamp-1">
                                       {template.name}
                                     </h3>
                                     <div className="text-right">
@@ -374,5 +379,5 @@ export default function TemplateMarketplace({
         </motion.div>
       )}
     </AnimatePresence>
-  );
+  )
 }

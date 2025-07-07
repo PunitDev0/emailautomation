@@ -1,14 +1,13 @@
-"use client";
+"use client"
+
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Activity, Zap, Clock, AlertTriangle } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 
-export default function PerformanceMonitor({
-  blockCount,
-  isVisible
-}) {
+
+export default function PerformanceMonitor({ blockCount, isVisible }) {
   const [metrics, setMetrics] = useState({
     renderTime: 0,
     memoryUsage: 0,
@@ -53,7 +52,7 @@ export default function PerformanceMonitor({
       if (animationId) {
         cancelAnimationFrame(animationId)
       }
-    };
+    }
   }, [blockCount, isVisible])
 
   const getPerformanceStatus = () => {
@@ -71,7 +70,8 @@ export default function PerformanceMonitor({
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 20 }}
-          className="fixed bottom-4 right-4 z-50">
+          className="fixed bottom-4 right-4 z-50"
+        >
           <Card className="bg-white/90 backdrop-blur-lg border-white/40 shadow-lg">
             <CardContent className="p-3">
               <div className="flex items-center space-x-2 mb-2">
@@ -79,7 +79,8 @@ export default function PerformanceMonitor({
                 <span className="text-sm font-medium">Performance</span>
                 <Badge
                   variant={status === "good" ? "default" : status === "fair" ? "secondary" : "destructive"}
-                  className="text-xs">
+                  className="text-xs"
+                >
                   {status.toUpperCase()}
                 </Badge>
               </div>
@@ -116,5 +117,5 @@ export default function PerformanceMonitor({
         </motion.div>
       )}
     </AnimatePresence>
-  );
+  )
 }

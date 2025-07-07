@@ -1,4 +1,5 @@
-"use client";
+"use client"
+
 import { motion } from "framer-motion"
 import {
   Type,
@@ -19,6 +20,7 @@ import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { ScrollArea } from "@/components/ui/scroll-area"
+
 
 const blockTypes = [
   {
@@ -51,15 +53,14 @@ const blockTypes = [
   },
 ]
 
-export default function Sidebar({
-  onAddBlock
-}) {
+export default function Sidebar({ onAddBlock }) {
   return (
-    <div className="h-full flex flex-col">
+    <div className="h-full flex flex-col overflow-auto">
       <div className="p-6 border-b border-white/20">
         <h2 className="text-lg font-semibold text-gray-800 mb-2">Components</h2>
         <p className="text-sm text-gray-600">Drag components to your email template</p>
       </div>
+
       <ScrollArea className="flex-1 p-4">
         <div className="space-y-6">
           {blockTypes.map((category, categoryIndex) => (
@@ -67,7 +68,8 @@ export default function Sidebar({
               key={category.category}
               initial={{ y: 20, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
-              transition={{ delay: categoryIndex * 0.1 }}>
+              transition={{ delay: categoryIndex * 0.1 }}
+            >
               <h3 className="text-sm font-medium text-gray-700 mb-3 flex items-center">
                 <Layout className="w-4 h-4 mr-2" />
                 {category.category}
@@ -79,22 +81,22 @@ export default function Sidebar({
                     key={block.type}
                     initial={{ x: -20, opacity: 0 }}
                     animate={{ x: 0, opacity: 1 }}
-                    transition={{ delay: categoryIndex * 0.1 + blockIndex * 0.05 }}>
+                    transition={{ delay: categoryIndex * 0.1 + blockIndex * 0.05 }}
+                  >
                     <Card
                       className="p-3 cursor-pointer hover:shadow-md transition-all duration-200 bg-white/70 hover:bg-white/90 border-white/40 group"
                       draggable
                       onDragStart={(e) => {
                         e.dataTransfer.setData("text/plain", block.type)
                       }}
-                      onClick={() => onAddBlock(block.type)}>
+                      onClick={() => onAddBlock(block.type)}
+                    >
                       <div className="flex items-start space-x-3">
-                        <div
-                          className="p-2 rounded-lg bg-gradient-to-br from-blue-100 to-indigo-100 group-hover:from-blue-200 group-hover:to-indigo-200 transition-colors">
+                        <div className="p-2 rounded-lg bg-gradient-to-br from-blue-100 to-indigo-100 group-hover:from-blue-200 group-hover:to-indigo-200 transition-colors">
                           <block.icon className="w-4 h-4 text-blue-600" />
                         </div>
                         <div className="flex-1 min-w-0">
-                          <h4
-                            className="text-sm font-medium text-gray-800 group-hover:text-blue-600 transition-colors">
+                          <h4 className="text-sm font-medium text-gray-800 group-hover:text-blue-600 transition-colors">
                             {block.label}
                           </h4>
                           <p className="text-xs text-gray-500 mt-1 line-clamp-2">{block.description}</p>
@@ -109,10 +111,7 @@ export default function Sidebar({
 
           <Separator className="my-6" />
 
-          <motion.div
-            initial={{ y: 20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.4 }}>
+          <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.4 }}>
             <h3 className="text-sm font-medium text-gray-700 mb-3 flex items-center">
               <Zap className="w-4 h-4 mr-2" />
               Quick Actions
@@ -122,14 +121,16 @@ export default function Sidebar({
               <Button
                 variant="outline"
                 size="sm"
-                className="w-full justify-start bg-white/70 hover:bg-white/90 border-white/40">
+                className="w-full justify-start bg-white/70 hover:bg-white/90 border-white/40"
+              >
                 <Palette className="w-4 h-4 mr-2" />
                 Theme Colors
               </Button>
               <Button
                 variant="outline"
                 size="sm"
-                className="w-full justify-start bg-white/70 hover:bg-white/90 border-white/40">
+                className="w-full justify-start bg-white/70 hover:bg-white/90 border-white/40"
+              >
                 <Layout className="w-4 h-4 mr-2" />
                 Templates
               </Button>
@@ -138,5 +139,5 @@ export default function Sidebar({
         </div>
       </ScrollArea>
     </div>
-  );
+  )
 }

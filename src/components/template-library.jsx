@@ -1,6 +1,7 @@
-"use client";
-import { useMemo, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+"use client"
+
+import { useState, useMemo } from "react"
+import { motion, AnimatePresence } from "framer-motion"
 import {
   X,
   Search,
@@ -19,14 +20,14 @@ import {
   Palette,
   Coffee,
   Sparkles,
-} from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import LoadingSpinner from "./ui/loading-spinner";
+} from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Badge } from "@/components/ui/badge"
+import { Card, CardContent } from "@/components/ui/card"
+import { ScrollArea } from "@/components/ui/scroll-area"
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
+import LoadingSpinner from "./ui/loading-spinner"
 
 const templates = [
   {
@@ -38,7 +39,7 @@ const templates = [
     isPremium: false,
     tags: ["youtube", "monthly", "stats", "creator", "newsletter"],
     color: "#FF0000",
-    featured: true,
+    // featured: true,
     blocks: [
       {
         id: "header-1",
@@ -147,6 +148,7 @@ const templates = [
       },
     ],
   },
+  
   {
     id: "freelancer-portfolio",
     name: "Freelancer Portfolio Showcase",
@@ -444,7 +446,84 @@ const templates = [
       },
     ],
   },
-];
+  {
+    id: "socialsynk-launch",
+    name: "SocialSynk App Launch",
+    description: "Announce the launch of SocialSynk, the ultimate AI-powered social media management app",
+    category: "Technology",
+    thumbnail: "/placeholder.svg?height=200&width=300",
+    isPremium: false,
+    tags: ["social media", "AI", "launch", "management", "dashboard", "analytics"],
+    color: "#3B82F6",
+    featured: true,
+    blocks: [
+      {
+        id: "socialsynk-header",
+        type: "text",
+        content: {
+          text: '<div style="background: linear-gradient(135deg, #3B82F6, #8B5CF6); color: white; padding: 50px; text-align: center; position: relative; overflow: hidden; border-radius: 15px;"><div style="position: absolute; top: -40px; right: -40px; width: 80px; height: 80px; background: rgba(255,255,255,0.15); border-radius: 50%;"></div><div style="position: absolute; bottom: -30px; left: -30px; width: 60px; height: 60px; background: rgba(255,255,255,0.15); border-radius: 50%;"></div><div style="position: relative; z-index: 1;"><div style="display: inline-block; background: rgba(255,255,255,0.25); padding: 8px 20px; border-radius: 20px; margin-bottom: 20px; font-size: 14px; font-weight: bold;">🚀 APP LAUNCH</div><h1 style="margin: 0 0 15px 0; font-size: 40px; font-weight: bold;">Introducing SocialSynk</h1><p style="margin: 0; font-size: 20px; opacity: 0.9;">Your AI-Powered Social Media Management Solution</p></div></div>',
+          tag: "div",
+          formatting: { bold: false, italic: false, underline: false },
+        },
+        styles: {
+          padding: { top: 0, right: 0, bottom: 30, left: 0 },
+          margin: { top: 0, right: 0, bottom: 0, left: 0 },
+          backgroundColor: "transparent",
+          borderRadius: 0,
+          fontSize: 16,
+          color: "#333333",
+          textAlign: "center",
+          fontFamily: "Arial, sans-serif",
+          lineHeight: 1.5,
+        },
+        position: { x: 0, y: 0 },
+      },
+      {
+        id: "socialsynk-features",
+        type: "text",
+        content: {
+          text: '<div style="padding: 40px; background: white; border-radius: 15px; box-shadow: 0 4px 20px rgba(59, 130, 246, 0.1);"><h2 style="text-align: center; color: #3B82F6; margin-bottom: 30px; font-size: 28px;">Why SocialSynk?</h2><div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; text-align: center;"><div><div style="width: 60px; height: 60px; background: linear-gradient(135deg, #3B82F6, #8B5CF6); border-radius: 50%; margin: 0 auto 15px; display: flex; align-items: center; justify-content: center;"><span style="color: white; font-size: 24px;">📊</span></div><h3 style="margin: 0 0 10px 0; color: #1E293B;">AI Analytics</h3><p style="margin: 0; color: #64748B; font-size: 14px;">Leverage AI-driven insights to optimize your social media strategy.</p></div><div><div style="width: 60px; height: 60px; background: linear-gradient(135deg, #8B5CF6, #EC4899); border-radius: 50%; margin: 0 auto 15px; display: flex; align-items: center; justify-content: center;"><span style="color: white; font-size: 24px;">📱</span></div><h3 style="margin: 0 0 10px 0; color: #1E293B;">Multi-Platform Management</h3><p style="margin: 0; color: #64748B; font-size: 14px;">Manage all your social media accounts from one intuitive dashboard.</p></div><div><div style="width: 60px; height: 60px; background: linear-gradient(135deg, #EC4899, #3B82F6); border-radius: 50%; margin: 0 auto 15px; display: flex; align-items: center; justify-content: center;"><span style="color: white; font-size: 24px;">⚡</span></div><h3 style="margin: 0 0 10px 0; color: #1E293B;">Automated Scheduling</h3><p style="margin: 0; color: #64748B; font-size: 14px;">Schedule posts effortlessly with our smart automation tools.</p></div></div></div>',
+          tag: "div",
+          formatting: { bold: false, italic: false, underline: false },
+        },
+        styles: {
+          padding: { top: 0, right: 0, bottom: 0, left: 0 },
+          margin: { top: 0, right: 0, bottom: 20, left: 0 },
+          backgroundColor: "transparent",
+          borderRadius: 0,
+          fontSize: 16,
+          color: "#333333",
+          textAlign: "left",
+          fontFamily: "Arial, sans-serif",
+          lineHeight: 1.6,
+        },
+        position: { x: 0, y: 100 },
+      },
+      {
+        id: "socialsynk-cta",
+        type: "button",
+        content: {
+          text: "Try SocialSynk Now",
+          href: "https://socialsynk.com",
+          target: "_blank",
+        },
+        styles: {
+          padding: { top: 18, right: 40, bottom: 18, left: 40 },
+          margin: { top: 30, right: 0, bottom: 30, left: 0 },
+          backgroundColor: "#3B82F6",
+          color: "#ffffff",
+          fontSize: 18,
+          fontWeight: "bold",
+          textAlign: "center",
+          borderRadius: 50,
+          border: "none",
+          display: "inline-block",
+        },
+        position: { x: 0, y: 200 },
+      },
+    ],
+  },
+]
 
 const categories = [
   { name: "All", icon: Sparkles },
@@ -459,45 +538,39 @@ const categories = [
   { name: "Food", icon: Coffee },
   { name: "Travel", icon: Plane },
   { name: "Technology", icon: Code },
-];
+]
 
-export default function TemplateLibrary({
-  isOpen,
-  onClose,
-  onSelectTemplate,
-  searchQuery,
-  onSearchChange,
-  activeFilter,
-  onFilterChange,
-}) {
-  const [showPremiumOnly, setShowPremiumOnly] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [hoveredTemplate, setHoveredTemplate] = useState(null);
+export default function TemplateLibrary({ isOpen, onClose, onSelectTemplate }) {
+  const [searchQuery, setSearchQuery] = useState("")
+  const [selectedCategory, setSelectedCategory] = useState("All")
+  const [showPremiumOnly, setShowPremiumOnly] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
+  const [hoveredTemplate, setHoveredTemplate] = useState(null)
 
   const filteredTemplates = useMemo(() => {
     return templates.filter((template) => {
       const matchesSearch =
         template.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         template.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        template.tags.some((tag) => tag.toLowerCase().includes(searchQuery.toLowerCase()));
+        template.tags.some((tag) => tag.toLowerCase().includes(searchQuery.toLowerCase()))
 
-      const matchesCategory = activeFilter === "All" || template.category === activeFilter;
-      const matchesPremium = !showPremiumOnly || template.isPremium;
+      const matchesCategory = selectedCategory === "All" || template.category === selectedCategory
+      const matchesPremium = !showPremiumOnly || template.isPremium
 
-      return matchesSearch && matchesCategory && matchesPremium;
-    });
-  }, [searchQuery, activeFilter, showPremiumOnly]);
+      return matchesSearch && matchesCategory && matchesPremium
+    })
+  }, [searchQuery, selectedCategory, showPremiumOnly])
 
-  const featuredTemplates = templates.filter((t) => t.featured);
+  const featuredTemplates = templates.filter((t) => t.featured)
 
   const handleTemplateSelect = async (template) => {
-    setIsLoading(true);
-    await new Promise((resolve) => setTimeout(resolve, 800));
-    onSelectTemplate(template);
-    setIsLoading(false);
-  };
+    setIsLoading(true)
+    await new Promise((resolve) => setTimeout(resolve, 800))
+    onSelectTemplate(template)
+    setIsLoading(false)
+  }
 
-  if (!isOpen) return null;
+  if (!isOpen) return null
 
   return (
     <motion.div
@@ -505,36 +578,45 @@ export default function TemplateLibrary({
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+      onClick={onClose}
     >
-      <div className="max-w-7xl h-[90vh] w-full mx-auto bg-gradient-to-br from-white via-blue-50/30 to-purple-50/30 p-6 rounded-lg shadow-lg">
-        <div className="flex items-center justify-between">
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            className="flex items-center space-x-3"
-          >
-            <div className="p-2 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg">
-              <Palette className="w-6 h-6 text-white" />
-            </div>
-            <div>
-              <p className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                Template Library
-              </p>
-              <p className="text-gray-600 text-sm">Choose from our collection of professional email templates</p>
-            </div>
-          </motion.div>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={onClose}
-            className="hover:bg-red-50 hover:text-red-600"
-          >
-            <X className="w-4 h-4" />
-          </Button>
+      <motion.div
+        initial={{ scale: 0.9, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        exit={{ scale: 0.9, opacity: 0 }}
+        transition={{ duration: 0.3 }}
+        className="max-w-7xl w-full h-[90vh] bg-gradient-to-br from-white via-blue-50/30 to-purple-50/30 rounded-lg shadow-2xl overflow-hidden"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="p-6 pb-0">
+          <div className="flex items-center justify-between">
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              className="flex items-center space-x-3"
+            >
+              <div className="p-2 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg">
+                <Palette className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                  Template Library
+                </h2>
+                <p className="text-gray-600 text-sm">Choose from our collection of professional email templates</p>
+              </div>
+            </motion.div>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onClose}
+              className="hover:bg-red-50 hover:text-red-600"
+            >
+              <X className="w-4 h-4" />
+            </Button>
+          </div>
         </div>
 
-        <div className="flex flex-col pt-6">
-          {/* Search and Filters */}
+        <div className="flex-1 flex flex-col p-6 pt-0">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -546,7 +628,7 @@ export default function TemplateLibrary({
               <Input
                 placeholder="Search templates by name, category, or tags..."
                 value={searchQuery}
-                onChange={(e) => onSearchChange(e.target.value)}
+                onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-10 bg-white/70 backdrop-blur-sm border-white/40 focus:bg-white"
               />
             </div>
@@ -567,8 +649,7 @@ export default function TemplateLibrary({
             </motion.div>
           </motion.div>
 
-          {/* Featured Templates */}
-          {!searchQuery && activeFilter === "All" && (
+          {!searchQuery && selectedCategory === "All" && (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -609,6 +690,7 @@ export default function TemplateLibrary({
                             {template.category === "Freelancer" && "👨‍💻"}
                             {template.category === "Social Media" && "📺"}
                             {template.category === "Event" && "💕"}
+                            {template.category === "Technology" && "⚡"}
                           </motion.div>
                         </div>
                         <Badge className="absolute top-2 right-2 bg-yellow-400 text-yellow-900">
@@ -644,13 +726,8 @@ export default function TemplateLibrary({
             </motion.div>
           )}
 
-          {/* Categories */}
-          <Tabs value={activeFilter} onValueChange={onFilterChange} className="flex-1 flex flex-col">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
-            >
+          <Tabs value={selectedCategory} onValueChange={setSelectedCategory} className="flex-1 flex flex-col">
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
               <TabsList className="grid grid-cols-6 lg:grid-cols-12 mb-6 bg-white/70 backdrop-blur-sm">
                 {categories.map((category) => (
                   <TabsTrigger
@@ -665,8 +742,8 @@ export default function TemplateLibrary({
               </TabsList>
             </motion.div>
 
-            <TabsContent value={activeFilter} className="flex-1">
-              <ScrollArea className="h-[60vh]">
+            <TabsContent value={selectedCategory} className="flex-1">
+              <ScrollArea className="h-[calc(90vh-300px)]">
                 <AnimatePresence mode="wait">
                   {isLoading ? (
                     <motion.div
@@ -794,9 +871,9 @@ export default function TemplateLibrary({
             </TabsContent>
           </Tabs>
         </div>
-      </div>
+      </motion.div>
     </motion.div>
-  );
+  )
 }
 
 function getCategoryEmoji(category) {
@@ -812,6 +889,6 @@ function getCategoryEmoji(category) {
     Food: "🍽️",
     Travel: "✈️",
     Technology: "⚡",
-  };
-  return emojiMap[category] || "📄";
+  }
+  return emojiMap[category] || "📄"
 }

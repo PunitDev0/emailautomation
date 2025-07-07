@@ -1,4 +1,5 @@
-"use client";
+"use client"
+
 import { useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Users, MessageCircle, Share2, Eye, Edit, Crown } from "lucide-react"
@@ -60,10 +61,7 @@ const mockComments = [
   },
 ]
 
-export default function CollaborationPanel({
-  isOpen,
-  onClose
-}) {
+export default function CollaborationPanel({ isOpen, onClose }) {
   const [collaborators, setCollaborators] = useState(mockCollaborators)
   const [comments, setComments] = useState(mockComments)
   const [newComment, setNewComment] = useState("")
@@ -71,8 +69,6 @@ export default function CollaborationPanel({
 
   const handleInvite = () => {
     if (!inviteEmail.trim()) return
-
-    // Simulate sending invite
     console.log("Inviting:", inviteEmail)
     setInviteEmail("")
   }
@@ -95,11 +91,11 @@ export default function CollaborationPanel({
   const getRoleIcon = (role) => {
     switch (role) {
       case "owner":
-        return <Crown className="w-3 h-3 text-yellow-500" />;
+        return <Crown className="w-3 h-3 text-yellow-500" />
       case "editor":
-        return <Edit className="w-3 h-3 text-blue-500" />;
+        return <Edit className="w-3 h-3 text-blue-500" />
       case "viewer":
-        return <Eye className="w-3 h-3 text-gray-500" />;
+        return <Eye className="w-3 h-3 text-gray-500" />
       default:
         return null
     }
@@ -114,7 +110,7 @@ export default function CollaborationPanel({
     if (minutes < 60) return `${minutes}m ago`
     const hours = Math.floor(minutes / 60)
     if (hours < 24) return `${hours}h ago`
-    return `${Math.floor(hours / 24)}d ago`;
+    return `${Math.floor(hours / 24)}d ago`
   }
 
   return (
@@ -124,7 +120,8 @@ export default function CollaborationPanel({
           initial={{ x: 300, opacity: 0 }}
           animate={{ x: 0, opacity: 1 }}
           exit={{ x: 300, opacity: 0 }}
-          className="fixed right-0 top-0 h-full w-80 bg-white shadow-2xl border-l border-gray-200 z-40 flex flex-col">
+          className="fixed right-0 top-0 h-full w-80 bg-white shadow-2xl border-l border-gray-200 z-40 flex flex-col"
+        >
           {/* Header */}
           <div className="p-4 border-b border-gray-200">
             <div className="flex items-center justify-between mb-4">
@@ -143,7 +140,8 @@ export default function CollaborationPanel({
                 placeholder="Enter email to invite"
                 value={inviteEmail}
                 onChange={(e) => setInviteEmail(e.target.value)}
-                className="flex-1" />
+                className="flex-1"
+              />
               <Button size="sm" onClick={handleInvite}>
                 <Share2 className="w-4 h-4" />
               </Button>
@@ -151,7 +149,7 @@ export default function CollaborationPanel({
           </div>
 
           <ScrollArea className="flex-1">
-            {/* Active Collaborators */}
+            {/* Collaborators */}
             <div className="p-4">
               <h3 className="text-sm font-medium text-gray-700 mb-3">
                 Active Collaborators ({collaborators.filter((c) => c.status === "online").length})
@@ -162,7 +160,8 @@ export default function CollaborationPanel({
                     key={collaborator.id}
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="flex items-center space-x-3">
+                    className="flex items-center space-x-3"
+                  >
                     <div className="relative">
                       <Avatar className="w-8 h-8">
                         <AvatarImage src={collaborator.avatar || "/placeholder.svg"} />
@@ -171,7 +170,8 @@ export default function CollaborationPanel({
                       <div
                         className={`absolute -bottom-1 -right-1 w-3 h-3 rounded-full border-2 border-white ${
                           collaborator.status === "online" ? "bg-green-500" : "bg-gray-400"
-                        }`} />
+                        }`}
+                      />
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center space-x-1">
@@ -199,7 +199,6 @@ export default function CollaborationPanel({
                 Comments ({comments.filter((c) => !c.resolved).length} active)
               </h3>
 
-              {/* Add Comment */}
               <div className="mb-4">
                 <div className="flex space-x-2">
                   <Input
@@ -207,14 +206,14 @@ export default function CollaborationPanel({
                     value={newComment}
                     onChange={(e) => setNewComment(e.target.value)}
                     className="flex-1"
-                    onKeyPress={(e) => e.key === "Enter" && handleAddComment()} />
+                    onKeyPress={(e) => e.key === "Enter" && handleAddComment()}
+                  />
                   <Button size="sm" onClick={handleAddComment}>
                     Send
                   </Button>
                 </div>
               </div>
 
-              {/* Comments List */}
               <div className="space-y-4">
                 {comments.map((comment) => (
                   <motion.div
@@ -223,7 +222,8 @@ export default function CollaborationPanel({
                     animate={{ opacity: 1, y: 0 }}
                     className={`p-3 rounded-lg border ${
                       comment.resolved ? "bg-gray-50 border-gray-200" : "bg-blue-50 border-blue-200"
-                    }`}>
+                    }`}
+                  >
                     <div className="flex items-start space-x-2">
                       <Avatar className="w-6 h-6">
                         <AvatarImage src={comment.author.avatar || "/placeholder.svg"} />
@@ -248,7 +248,7 @@ export default function CollaborationPanel({
             </div>
           </ScrollArea>
 
-          {/* Live Cursors Indicator */}
+          {/* Live Cursors */}
           <div className="p-4 border-t border-gray-200">
             <div className="flex items-center space-x-2">
               <div className="flex -space-x-1">
@@ -258,9 +258,10 @@ export default function CollaborationPanel({
                     <motion.div
                       key={collaborator.id}
                       animate={{ scale: [1, 1.1, 1] }}
-                      transition={{ duration: 2, repeat: Number.POSITIVE_INFINITY }}
+                      transition={{ duration: 2, repeat: Infinity }}
                       className="w-3 h-3 rounded-full border-2 border-white"
-                      style={{ backgroundColor: collaborator.cursor?.color }} />
+                      style={{ backgroundColor: collaborator.cursor?.color }}
+                    />
                   ))}
               </div>
               <p className="text-xs text-gray-600">
@@ -271,5 +272,5 @@ export default function CollaborationPanel({
         </motion.div>
       )}
     </AnimatePresence>
-  );
+  )
 }

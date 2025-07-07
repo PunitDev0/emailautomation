@@ -1,11 +1,11 @@
-"use client";
+"use client"
+
 import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
+import  { EmailBlock } from "../email-template-maker"
 
-export default function CountdownBlock({
-  block,
-  onUpdate
-}) {
+
+export default function CountdownBlock({ block, onUpdate }) {
   const [timeLeft, setTimeLeft] = useState({
     days: 0,
     hours: 0,
@@ -32,7 +32,7 @@ export default function CountdownBlock({
       }
     }, 1000)
 
-    return () => clearInterval(timer);
+    return () => clearInterval(timer)
   }, [block.content.targetDate])
 
   const containerStyles = {
@@ -54,20 +54,17 @@ export default function CountdownBlock({
   }
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      style={containerStyles}>
-      <h3
-        className="text-xl font-bold mb-4"
-        style={{ color: block.styles.titleColor || "#333" }}>
+    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} style={containerStyles}>
+      <h3 className="text-xl font-bold mb-4" style={{ color: block.styles.titleColor || "#333" }}>
         {block.content.title || "Limited Time Offer"}
       </h3>
+
       <div className="flex justify-center items-center flex-wrap gap-2">
         <motion.div
           style={timeBoxStyle}
           animate={{ scale: [1, 1.05, 1] }}
-          transition={{ duration: 1, repeat: Number.POSITIVE_INFINITY }}>
+          transition={{ duration: 1, repeat: Number.POSITIVE_INFINITY }}
+        >
           <div className="text-2xl font-bold">{timeLeft.days}</div>
           <div className="text-sm opacity-80">Days</div>
         </motion.div>
@@ -75,7 +72,8 @@ export default function CountdownBlock({
         <motion.div
           style={timeBoxStyle}
           animate={{ scale: [1, 1.05, 1] }}
-          transition={{ duration: 1, repeat: Number.POSITIVE_INFINITY, delay: 0.25 }}>
+          transition={{ duration: 1, repeat: Number.POSITIVE_INFINITY, delay: 0.25 }}
+        >
           <div className="text-2xl font-bold">{timeLeft.hours}</div>
           <div className="text-sm opacity-80">Hours</div>
         </motion.div>
@@ -83,7 +81,8 @@ export default function CountdownBlock({
         <motion.div
           style={timeBoxStyle}
           animate={{ scale: [1, 1.05, 1] }}
-          transition={{ duration: 1, repeat: Number.POSITIVE_INFINITY, delay: 0.5 }}>
+          transition={{ duration: 1, repeat: Number.POSITIVE_INFINITY, delay: 0.5 }}
+        >
           <div className="text-2xl font-bold">{timeLeft.minutes}</div>
           <div className="text-sm opacity-80">Minutes</div>
         </motion.div>
@@ -91,12 +90,14 @@ export default function CountdownBlock({
         <motion.div
           style={timeBoxStyle}
           animate={{ scale: [1, 1.05, 1] }}
-          transition={{ duration: 1, repeat: Number.POSITIVE_INFINITY, delay: 0.75 }}>
+          transition={{ duration: 1, repeat: Number.POSITIVE_INFINITY, delay: 0.75 }}
+        >
           <div className="text-2xl font-bold">{timeLeft.seconds}</div>
           <div className="text-sm opacity-80">Seconds</div>
         </motion.div>
       </div>
+
       {block.content.subtitle && <p className="mt-4 text-gray-600">{block.content.subtitle}</p>}
     </motion.div>
-  );
+  )
 }

@@ -1,667 +1,621 @@
-"use client";
+"use client"
+
+import { useState } from "react"
 import { motion } from "framer-motion"
-import { X, Palette, Type, Layout, Link, ExternalLink, Settings } from "lucide-react"
+import {
+  X,
+  Palette,
+  Type,
+  Layout,
+  Smartphone,
+  Monitor,
+  Tablet,
+  Copy,
+  Trash2,
+  ArrowUp,
+  ArrowDown,
+  Settings,
+} from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Card } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Slider } from "@/components/ui/slider"
-import { Switch } from "@/components/ui/switch"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { ScrollArea } from "@/components/ui/scroll-area"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Separator } from "@/components/ui/separator"
 import { Badge } from "@/components/ui/badge"
 
-export default function PropertyPanel({
-  block,
-  onUpdateBlock,
-  onClose
-}) {
+const colorPresets = [
+  "#000000",
+  "#ffffff",
+  "#3b82f6",
+  "#ef4444",
+  "#10b981",
+  "#f59e0b",
+  "#8b5cf6",
+  "#ec4899",
+  "#6b7280",
+  "#1f2937",
+]
+
+const fontFamilies = [
+  "Arial, sans-serif",
+  "Georgia, serif",
+  "Times New Roman, serif",
+  "Helvetica, sans-serif",
+  "Verdana, sans-serif",
+  "Courier New, monospace",
+]
+
+export default function PropertyPanel({ block, onUpdateBlock, onClose, isMobile }) {
+  const [activeTab, setActiveTab] = useState("style")
+  const [activeDevice, setActiveDevice] = useState("desktop")
+
   if (!block) return null
 
-  const updateContent = (updates) => {
-    onUpdateBlock(block.id, { content: { ...block.content, ...updates } })
+  const updateStyle = (property, value) => {
+    const currentStyles = block.styles || {}
+    onUpdateBlock(block.id, {
+      styles: { ...currentStyles, [property]: value },
+    })
   }
 
-  const updateStyles = (updates) => {
-    onUpdateBlock(block.id, { styles: { ...block.styles, ...updates } })
+  const updateResponsiveStyle = (device, property, value) => {
+    const currentResponsive = block.responsive || {}
+    const deviceStyles = currentResponsive[device] || {}
+
+    onUpdateBlock(block.id, {
+      responsive: {
+        ...currentResponsive,
+        [device]: { ...deviceStyles, [property]: value },
+      },
+    })
   }
 
-  // Extract links from text content
-  const extractLinks = (text) => {
-    const linkRegex = /<a[^>]*href="([^"]*)"[^>]*>([^<]*)<\/a>/g
-    const links = []
-    let match
+  const updateContent = (property, value) => {
+    const currentContent = block.content || {}
+    onUpdateBlock(block.id, {
+      content: { ...currentContent, [property]: value },
+    })
+  }
 
-    while ((match = linkRegex.exec(text)) !== null) {
-      links.push({
-        url: match[1],
-        text: match[2],
-      })
+  const getBlockDisplayName = (type) => {
+    const names = {
+      text: "Text Element",
+      image: "Image Element",
+      button: "Button Element",
+      social: "Social Media",
+      divider: "Divider Line",
+      spacer: "Spacer",
+      columns: "Columns Layout",
+      video: "Video Element",
+      countdown: "Countdown Timer",
+      survey: "Survey Element",
     }
-
-    return links
+    return names[type] || type
   }
 
-  const links = block.type === "text" ? extractLinks(block.content.text || "") : []
+  const renderStyleControls = () => {
+    const styles = block.styles || {}
+    const responsiveStyles = block.responsive?.[activeDevice] || {}
+    const currentStyles = { ...styles, ...responsiveStyles }
 
-  // Get social platform stats for social blocks
-  const getSocialStats = () => {
-    if (block.type !== "social" || !block.content.platforms) return null
+    return (
+      <div className="space-y-6">
+        {/* Device Selector */}
+        <div className="flex items-center space-x-2 bg-gray-50 dark:bg-gray-800 p-1 rounded-lg">
+          <Button
+            size="sm"
+            variant={activeDevice === "desktop" ? "default" : "ghost"}
+            onClick={() => setActiveDevice("desktop")}
+            className="flex-1"
+          >
+            <Monitor className="w-4 h-4 mr-1" />
+            Desktop
+          </Button>
+          <Button
+            size="sm"
+            variant={activeDevice === "tablet" ? "default" : "ghost"}
+            onClick={() => setActiveDevice("tablet")}
+            className="flex-1"
+          >
+            <Tablet className="w-4 h-4 mr-1" />
+            Tablet
+          </Button>
+          <Button
+            size="sm"
+            variant={activeDevice === "mobile" ? "default" : "ghost"}
+            onClick={() => setActiveDevice("mobile")}
+            className="flex-1"
+          >
+            <Smartphone className="w-4 h-4 mr-1" />
+            Mobile
+          </Button>
+        </div>
 
-    const platforms = block.content.platforms
-    const totalPlatforms = platforms.length
-    const enabledPlatforms = platforms.filter((p) => p.enabled).length
-    const validLinks = platforms.filter((p) => {
-      try {
-        new URL(p.url)
-        return true
-      } catch {
-        return false
-      }
-    }).length
-
-    return {
-      total: totalPlatforms,
-      enabled: enabledPlatforms,
-      valid: validLinks,
-      invalid: totalPlatforms - validLinks,
-    }
-  }
-
-  const socialStats = getSocialStats()
-
-  return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      className="h-full flex flex-col bg-white/80 backdrop-blur-lg">
-      {/* Header */}
-      <div
-        className="p-4 border-b border-white/20 flex items-center justify-between">
-        <h3 className="font-semibold text-gray-800 capitalize flex items-center">
-          {block.type === "social" && <ExternalLink className="w-4 h-4 mr-2" />}
-          {block.type !== "social" && getBlockIcon(block.type)}
-          {block.type} Properties
-        </h3>
-        <Button variant="ghost" size="sm" onClick={onClose}>
-          <X className="w-4 h-4" />
-        </Button>
-      </div>
-      {/* Content */}
-      <ScrollArea className="flex-1">
-        <div className="p-4">
-          <Tabs defaultValue="content" className="w-full">
-            <TabsList className="grid w-full grid-cols-3 mb-4">
-              <TabsTrigger value="content" className="text-xs">
-                <Type className="w-3 h-3 mr-1" />
-                Content
-              </TabsTrigger>
-              <TabsTrigger value="style" className="text-xs">
-                <Palette className="w-3 h-3 mr-1" />
-                Style
-              </TabsTrigger>
-              <TabsTrigger value="layout" className="text-xs">
-                <Layout className="w-3 h-3 mr-1" />
-                Layout
-              </TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="content" className="space-y-4">
-              {renderContentTab(block, updateContent)}
-
-              {/* Enhanced Social Block Management */}
-              {block.type === "social" && socialStats && (
-                <Card
-                  className="p-4 mt-4 bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-200">
-                  <h4 className="text-sm font-medium mb-3 flex items-center text-blue-900">
-                    <ExternalLink className="w-4 h-4 mr-2" />
-                    Social Media Overview
-                  </h4>
-
-                  <div className="grid grid-cols-2 gap-3 mb-4">
-                    <div className="text-center p-2 bg-white/60 rounded-lg">
-                      <div className="text-lg font-bold text-blue-600">{socialStats.enabled}</div>
-                      <div className="text-xs text-blue-700">Active</div>
-                    </div>
-                    <div className="text-center p-2 bg-white/60 rounded-lg">
-                      <div className="text-lg font-bold text-green-600">{socialStats.valid}</div>
-                      <div className="text-xs text-green-700">Valid Links</div>
-                    </div>
-                  </div>
-
-                  {socialStats.invalid > 0 && (
-                    <div className="p-2 bg-red-50 border border-red-200 rounded-lg mb-3">
-                      <div className="flex items-center text-red-700 text-xs">
-                        <span className="w-2 h-2 bg-red-500 rounded-full mr-2"></span>
-                        {socialStats.invalid} platform(s) have invalid URLs
-                      </div>
-                    </div>
-                  )}
-
-                  <div className="space-y-2">
-                    <h5 className="text-xs font-medium text-blue-800">Quick Actions:</h5>
-                    <div className="flex flex-wrap gap-2">
-                      <Badge variant="outline" className="text-xs cursor-pointer hover:bg-blue-100">
-                        Add Platform
-                      </Badge>
-                      <Badge variant="outline" className="text-xs cursor-pointer hover:bg-green-100">
-                        Validate Links
-                      </Badge>
-                      <Badge variant="outline" className="text-xs cursor-pointer hover:bg-purple-100">
-                        Bulk Edit
-                      </Badge>
-                    </div>
-                  </div>
-
-                  <div className="mt-3 p-2 bg-blue-100 rounded-lg">
-                    <p className="text-xs text-blue-800 flex items-center">
-                      <Settings className="w-3 h-3 mr-1" />
-                      Click "Manage" on the block to edit individual platforms
-                    </p>
-                  </div>
-                </Card>
-              )}
-
-              {/* Links Section for Text Blocks */}
-              {block.type === "text" && links.length > 0 && (
-                <Card className="p-3 mt-4">
-                  <h4 className="text-sm font-medium mb-3 flex items-center">
-                    <Link className="w-4 h-4 mr-2" />
-                    Links in this text ({links.length})
-                  </h4>
-                  <div className="space-y-2">
-                    {links.map((link, index) => (
-                      <div key={index} className="p-2 bg-blue-50 rounded-lg">
-                        <div className="flex items-center justify-between">
-                          <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium text-blue-900 truncate">{link.text}</p>
-                            <p className="text-xs text-blue-600 truncate">{link.url}</p>
-                          </div>
-                          <Badge variant="outline" className="ml-2 text-xs">
-                            {link.url.startsWith("mailto:")
-                              ? "Email"
-                              : link.url.startsWith("tel:")
-                                ? "Phone"
-                                : link.url.includes("twitter.com") ||
-                                    link.url.includes("facebook.com") ||
-                                    link.url.includes("linkedin.com") ||
-                                    link.url.includes("instagram.com")
-                                  ? "Social"
-                                  : "Website"}
-                          </Badge>
-                        </div>
-                      </div>
+        {/* Typography Controls */}
+        {(block.type === "text" || block.type === "button") && (
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm flex items-center">
+                <Type className="w-4 h-4 mr-2" />
+                Typography
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label>Font Family</Label>
+                <Select
+                  value={currentStyles.fontFamily || "Arial, sans-serif"}
+                  onValueChange={(value) =>
+                    activeDevice === "desktop"
+                      ? updateStyle("fontFamily", value)
+                      : updateResponsiveStyle(activeDevice, "fontFamily", value)
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {fontFamilies.map((font) => (
+                      <SelectItem key={font} value={font}>
+                        <span style={{ fontFamily: font }}>{font.split(",")[0]}</span>
+                      </SelectItem>
                     ))}
-                  </div>
-                  <div className="mt-3 p-2 bg-green-50 rounded-lg">
-                    <p className="text-xs text-green-700 flex items-center">
-                      <Link className="w-3 h-3 mr-1" />
-                      Tip: Select text and use the link button to add more links
-                    </p>
-                  </div>
-                </Card>
-              )}
-            </TabsContent>
-
-            <TabsContent value="style" className="space-y-4">
-              {renderStyleTab(block, updateStyles)}
-            </TabsContent>
-
-            <TabsContent value="layout" className="space-y-4">
-              {renderLayoutTab(block, updateStyles)}
-            </TabsContent>
-          </Tabs>
-        </div>
-      </ScrollArea>
-    </motion.div>
-  );
-}
-
-function getBlockIcon(type) {
-  const icons = {
-    text: <Type className="w-4 h-4 mr-2" />,
-    image: <Layout className="w-4 h-4 mr-2" />,
-    button: <Layout className="w-4 h-4 mr-2" />,
-    social: <ExternalLink className="w-4 h-4 mr-2" />,
-    divider: <Layout className="w-4 h-4 mr-2" />,
-    spacer: <Layout className="w-4 h-4 mr-2" />,
-    columns: <Layout className="w-4 h-4 mr-2" />,
-  }
-  return icons[type] || <Layout className="w-4 h-4 mr-2" />;
-}
-
-function renderContentTab(block, updateContent) {
-  switch (block.type) {
-    case "text":
-      return (
-        <>
-          <div>
-            <Label htmlFor="text-content">Text Content</Label>
-            <Textarea
-              id="text-content"
-              value={block.content.text}
-              onChange={(e) => updateContent({ text: e.target.value })}
-              className="mt-1"
-              rows={4} />
-            <p className="text-xs text-gray-500 mt-1">
-              💡 Double-click the text block to edit, or select text to add links
-            </p>
-          </div>
-          <div>
-            <Label htmlFor="text-tag">HTML Tag</Label>
-            <Select
-              value={block.content.tag}
-              onValueChange={(value) => updateContent({ tag: value })}>
-              <SelectTrigger className="mt-1">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="h1">Heading 1</SelectItem>
-                <SelectItem value="h2">Heading 2</SelectItem>
-                <SelectItem value="h3">Heading 3</SelectItem>
-                <SelectItem value="p">Paragraph</SelectItem>
-                <SelectItem value="span">Span</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="space-y-2">
-            <Label>Text Formatting</Label>
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-2">
-                <Switch
-                  checked={block.content.formatting?.bold}
-                  onCheckedChange={(checked) =>
-                    updateContent({
-                      formatting: { ...block.content.formatting, bold: checked },
-                    })
-                  } />
-                <Label className="text-sm">Bold</Label>
+                  </SelectContent>
+                </Select>
               </div>
-              <div className="flex items-center space-x-2">
-                <Switch
-                  checked={block.content.formatting?.italic}
-                  onCheckedChange={(checked) =>
-                    updateContent({
-                      formatting: { ...block.content.formatting, italic: checked },
-                    })
-                  } />
-                <Label className="text-sm">Italic</Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <Switch
-                  checked={block.content.formatting?.underline}
-                  onCheckedChange={(checked) =>
-                    updateContent({
-                      formatting: { ...block.content.formatting, underline: checked },
-                    })
-                  } />
-                <Label className="text-sm">Underline</Label>
-              </div>
-            </div>
-          </div>
-          <Card className="p-3 bg-blue-50 border-blue-200">
-            <h4 className="text-sm font-medium text-blue-900 mb-2 flex items-center">
-              <Link className="w-4 h-4 mr-2" />
-              Link Features
-            </h4>
-            <ul className="text-xs text-blue-700 space-y-1">
-              <li>• Select any text to add website, email, or social media links</li>
-              <li>• Auto-detection for email addresses and phone numbers</li>
-              <li>• Support for portfolio, social media, and custom links</li>
-              <li>• Quick link templates for common use cases</li>
-            </ul>
-          </Card>
-        </>
-      );
 
-    case "image":
-      return (
-        <>
-          <div>
-            <Label htmlFor="image-src">Image URL</Label>
-            <Input
-              id="image-src"
-              value={block.content.src}
-              onChange={(e) => updateContent({ src: e.target.value })}
-              className="mt-1"
-              placeholder="https://example.com/image.jpg" />
-          </div>
-          <div>
-            <Label htmlFor="image-alt">Alt Text</Label>
-            <Input
-              id="image-alt"
-              value={block.content.alt}
-              onChange={(e) => updateContent({ alt: e.target.value })}
-              className="mt-1"
-              placeholder="Image description" />
-          </div>
-          <div className="grid grid-cols-2 gap-2">
-            <div>
-              <Label htmlFor="image-width">Width</Label>
-              <Input
-                id="image-width"
-                type="number"
-                value={block.content.width}
-                onChange={(e) => updateContent({ width: Number.parseInt(e.target.value) })}
-                className="mt-1" />
-            </div>
-            <div>
-              <Label htmlFor="image-height">Height</Label>
-              <Input
-                id="image-height"
-                type="number"
-                value={block.content.height}
-                onChange={(e) => updateContent({ height: Number.parseInt(e.target.value) })}
-                className="mt-1" />
-            </div>
-          </div>
-        </>
-      );
-
-    case "button":
-      return (
-        <>
-          <div>
-            <Label htmlFor="button-text">Button Text</Label>
-            <Input
-              id="button-text"
-              value={block.content.text}
-              onChange={(e) => updateContent({ text: e.target.value })}
-              className="mt-1" />
-          </div>
-          <div>
-            <Label htmlFor="button-href">Link URL</Label>
-            <Input
-              id="button-href"
-              value={block.content.href}
-              onChange={(e) => updateContent({ href: e.target.value })}
-              className="mt-1"
-              placeholder="https://example.com" />
-          </div>
-          <div>
-            <Label htmlFor="button-target">Link Target</Label>
-            <Select
-              value={block.content.target}
-              onValueChange={(value) => updateContent({ target: value })}>
-              <SelectTrigger className="mt-1">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="_blank">New Window</SelectItem>
-                <SelectItem value="_self">Same Window</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </>
-      );
-
-    case "social":
-      return (
-        <>
-          <div
-            className="text-center p-6 bg-gradient-to-br from-blue-50 to-indigo-100 rounded-lg border-2 border-dashed border-blue-300">
-            <ExternalLink className="w-12 h-12 mx-auto mb-4 text-blue-500" />
-            <h3 className="text-lg font-semibold text-blue-900 mb-2">Social Media Manager</h3>
-            <p className="text-sm text-blue-700 mb-4">
-              Click the "Manage" button on your social block to add, edit, and organize your social media links.
-            </p>
-            <div className="space-y-2">
-              <div className="text-xs text-blue-600">✨ Features available:</div>
-              <div className="grid grid-cols-2 gap-2 text-xs text-blue-700">
-                <div>• Add custom platforms</div>
-                <div>• Validate URLs</div>
-                <div>• Custom colors & icons</div>
-                <div>• Link targeting options</div>
-              </div>
-            </div>
-          </div>
-          <Card className="p-3 bg-green-50 border-green-200">
-            <h4 className="text-sm font-medium text-green-800 mb-2">Quick Tips</h4>
-            <ul className="text-xs text-green-700 space-y-1">
-              <li>• Use the hover controls on each icon for quick edits</li>
-              <li>• Toggle platform visibility with the switches</li>
-              <li>• Add tooltips to provide context for your links</li>
-              <li>• Use brand colors to maintain consistency</li>
-            </ul>
-          </Card>
-        </>
-      );
-
-    case "spacer":
-      return (
-        <div>
-          <Label htmlFor="spacer-height">Height (px)</Label>
-          <div className="mt-2">
-            <Slider
-              value={[block.content.height]}
-              onValueChange={([value]) => updateContent({ height: value })}
-              max={200}
-              min={10}
-              step={5}
-              className="w-full" />
-            <div className="text-sm text-gray-500 mt-1 text-center">{block.content.height}px</div>
-          </div>
-        </div>
-      );
-
-    default:
-      return <div className="text-sm text-gray-500">No content options available</div>;
-  }
-}
-
-function renderStyleTab(block, updateStyles) {
-  return (
-    <>
-      {/* Colors */}
-      <Card className="p-3">
-        <h4 className="text-sm font-medium mb-3">Colors</h4>
-        <div className="space-y-3">
-          {block.type === "text" && (
-            <div>
-              <Label htmlFor="text-color">Text Color</Label>
-              <Input
-                id="text-color"
-                type="color"
-                value={block.styles.color}
-                onChange={(e) => updateStyles({ color: e.target.value })}
-                className="mt-1 h-10" />
-            </div>
-          )}
-
-          <div>
-            <Label htmlFor="bg-color">Background Color</Label>
-            <Input
-              id="bg-color"
-              type="color"
-              value={block.styles.backgroundColor}
-              onChange={(e) => updateStyles({ backgroundColor: e.target.value })}
-              className="mt-1 h-10" />
-          </div>
-        </div>
-      </Card>
-      {/* Typography */}
-      {block.type === "text" && (
-        <Card className="p-3">
-          <h4 className="text-sm font-medium mb-3">Typography</h4>
-          <div className="space-y-3">
-            <div>
-              <Label htmlFor="font-size">Font Size</Label>
-              <div className="mt-2">
+              <div className="space-y-2">
+                <Label>Font Size: {currentStyles.fontSize || 16}px</Label>
                 <Slider
-                  value={[block.styles.fontSize]}
-                  onValueChange={([value]) => updateStyles({ fontSize: value })}
-                  max={48}
+                  value={[currentStyles.fontSize || 16]}
+                  onValueChange={([value]) =>
+                    activeDevice === "desktop"
+                      ? updateStyle("fontSize", value)
+                      : updateResponsiveStyle(activeDevice, "fontSize", value)
+                  }
                   min={8}
+                  max={72}
                   step={1}
-                  className="w-full" />
-                <div className="text-sm text-gray-500 mt-1 text-center">{block.styles.fontSize}px</div>
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label>Text Color</Label>
+                <div className="flex items-center space-x-2">
+                  <Input
+                    type="color"
+                    value={currentStyles.color || "#333333"}
+                    onChange={(e) =>
+                      activeDevice === "desktop"
+                        ? updateStyle("color", e.target.value)
+                        : updateResponsiveStyle(activeDevice, "color", e.target.value)
+                    }
+                    className="w-12 h-8 p-0 border-0"
+                  />
+                  <Input
+                    value={currentStyles.color || "#333333"}
+                    onChange={(e) =>
+                      activeDevice === "desktop"
+                        ? updateStyle("color", e.target.value)
+                        : updateResponsiveStyle(activeDevice, "color", e.target.value)
+                    }
+                    className="flex-1"
+                  />
+                </div>
+                <div className="flex flex-wrap gap-2 mt-2">
+                  {colorPresets.map((color) => (
+                    <button
+                      key={color}
+                      className="w-6 h-6 rounded border-2 border-gray-200 hover:border-gray-400"
+                      style={{ backgroundColor: color }}
+                      onClick={() =>
+                        activeDevice === "desktop"
+                          ? updateStyle("color", color)
+                          : updateResponsiveStyle(activeDevice, "color", color)
+                      }
+                    />
+                  ))}
+                </div>
+              </div>
+
+              {block.type === "text" && (
+                <div className="space-y-2">
+                  <Label>Text Alignment</Label>
+                  <Select
+                    value={currentStyles.textAlign || "left"}
+                    onValueChange={(value) =>
+                      activeDevice === "desktop"
+                        ? updateStyle("textAlign", value)
+                        : updateResponsiveStyle(activeDevice, "textAlign", value)
+                    }
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="left">Left</SelectItem>
+                      <SelectItem value="center">Center</SelectItem>
+                      <SelectItem value="right">Right</SelectItem>
+                      <SelectItem value="justify">Justify</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Background & Border */}
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm flex items-center">
+              <Palette className="w-4 h-4 mr-2" />
+              Background & Border
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <Label>Background Color</Label>
+              <div className="flex items-center space-x-2">
+                <Input
+                  type="color"
+                  value={currentStyles.backgroundColor || "#ffffff"}
+                  onChange={(e) =>
+                    activeDevice === "desktop"
+                      ? updateStyle("backgroundColor", e.target.value)
+                      : updateResponsiveStyle(activeDevice, "backgroundColor", e.target.value)
+                  }
+                  className="w-12 h-8 p-0 border-0"
+                />
+                <Input
+                  value={currentStyles.backgroundColor || "#ffffff"}
+                  onChange={(e) =>
+                    activeDevice === "desktop"
+                      ? updateStyle("backgroundColor", e.target.value)
+                      : updateResponsiveStyle(activeDevice, "backgroundColor", e.target.value)
+                  }
+                  className="flex-1"
+                />
               </div>
             </div>
 
-            <div>
-              <Label htmlFor="text-align">Text Alignment</Label>
-              <Select
-                value={block.styles.textAlign}
-                onValueChange={(value) => updateStyles({ textAlign: value })}>
-                <SelectTrigger className="mt-1">
+            <div className="space-y-2">
+              <Label>Border Radius: {currentStyles.borderRadius || 0}px</Label>
+              <Slider
+                value={[currentStyles.borderRadius || 0]}
+                onValueChange={([value]) =>
+                  activeDevice === "desktop"
+                    ? updateStyle("borderRadius", value)
+                    : updateResponsiveStyle(activeDevice, "borderRadius", value)
+                }
+                min={0}
+                max={50}
+                step={1}
+              />
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Spacing */}
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm flex items-center">
+              <Layout className="w-4 h-4 mr-2" />
+              Spacing
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>Padding Top</Label>
+                <Input
+                  type="number"
+                  value={currentStyles.padding?.top || 16}
+                  onChange={(e) => {
+                    const padding = currentStyles.padding || {}
+                    const newPadding = { ...padding, top: Number(e.target.value) }
+                    activeDevice === "desktop"
+                      ? updateStyle("padding", newPadding)
+                      : updateResponsiveStyle(activeDevice, "padding", newPadding)
+                  }}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Padding Bottom</Label>
+                <Input
+                  type="number"
+                  value={currentStyles.padding?.bottom || 16}
+                  onChange={(e) => {
+                    const padding = currentStyles.padding || {}
+                    const newPadding = { ...padding, bottom: Number(e.target.value) }
+                    activeDevice === "desktop"
+                      ? updateStyle("padding", newPadding)
+                      : updateResponsiveStyle(activeDevice, "padding", newPadding)
+                  }}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Padding Left</Label>
+                <Input
+                  type="number"
+                  value={currentStyles.padding?.left || 16}
+                  onChange={(e) => {
+                    const padding = currentStyles.padding || {}
+                    const newPadding = { ...padding, left: Number(e.target.value) }
+                    activeDevice === "desktop"
+                      ? updateStyle("padding", newPadding)
+                      : updateResponsiveStyle(activeDevice, "padding", newPadding)
+                  }}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Padding Right</Label>
+                <Input
+                  type="number"
+                  value={currentStyles.padding?.right || 16}
+                  onChange={(e) => {
+                    const padding = currentStyles.padding || {}
+                    const newPadding = { ...padding, right: Number(e.target.value) }
+                    activeDevice === "desktop"
+                      ? updateStyle("padding", newPadding)
+                      : updateResponsiveStyle(activeDevice, "padding", newPadding)
+                  }}
+                />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    )
+  }
+
+  const renderContentControls = () => {
+    switch (block.type) {
+      case "text":
+        return (
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label>Text Content</Label>
+              <textarea
+                className="w-full p-3 border rounded-lg resize-none min-h-[100px]"
+                value={block.content.text || ""}
+                onChange={(e) => updateContent("text", e.target.value)}
+                placeholder="Enter your text here..."
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>HTML Tag</Label>
+              <Select value={block.content.tag || "p"} onValueChange={(value) => updateContent("tag", value)}>
+                <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="left">Left</SelectItem>
-                  <SelectItem value="center">Center</SelectItem>
-                  <SelectItem value="right">Right</SelectItem>
-                  <SelectItem value="justify">Justify</SelectItem>
+                  <SelectItem value="h1">Heading 1</SelectItem>
+                  <SelectItem value="h2">Heading 2</SelectItem>
+                  <SelectItem value="h3">Heading 3</SelectItem>
+                  <SelectItem value="p">Paragraph</SelectItem>
+                  <SelectItem value="span">Span</SelectItem>
                 </SelectContent>
               </Select>
             </div>
+          </div>
+        )
 
-            <div>
-              <Label htmlFor="line-height">Line Height</Label>
-              <div className="mt-2">
-                <Slider
-                  value={[block.styles.lineHeight]}
-                  onValueChange={([value]) => updateStyles({ lineHeight: value })}
-                  max={3}
-                  min={1}
-                  step={0.1}
-                  className="w-full" />
-                <div className="text-sm text-gray-500 mt-1 text-center">{block.styles.lineHeight}</div>
+      case "image":
+        return (
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label>Image URL</Label>
+              <Input
+                value={block.content.src || ""}
+                onChange={(e) => updateContent("src", e.target.value)}
+                placeholder="https://example.com/image.jpg"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Alt Text</Label>
+              <Input
+                value={block.content.alt || ""}
+                onChange={(e) => updateContent("alt", e.target.value)}
+                placeholder="Describe the image"
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>Width (px)</Label>
+                <Input
+                  type="number"
+                  value={block.content.width || ""}
+                  onChange={(e) => updateContent("width", Number(e.target.value))}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Height (px)</Label>
+                <Input
+                  type="number"
+                  value={block.content.height || ""}
+                  onChange={(e) => updateContent("height", Number(e.target.value))}
+                />
               </div>
             </div>
           </div>
-        </Card>
-      )}
-      {/* Border Radius */}
-      <Card className="p-3">
-        <h4 className="text-sm font-medium mb-3">Border Radius</h4>
-        <div className="mt-2">
-          <Slider
-            value={[block.styles.borderRadius]}
-            onValueChange={([value]) => updateStyles({ borderRadius: value })}
-            max={50}
-            min={0}
-            step={1}
-            className="w-full" />
-          <div className="text-sm text-gray-500 mt-1 text-center">{block.styles.borderRadius}px</div>
-        </div>
-      </Card>
-    </>
-  );
-}
+        )
 
-function renderLayoutTab(block, updateStyles) {
+      case "button":
+        return (
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label>Button Text</Label>
+              <Input
+                value={block.content.text || ""}
+                onChange={(e) => updateContent("text", e.target.value)}
+                placeholder="Click Me"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Link URL</Label>
+              <Input
+                value={block.content.href || ""}
+                onChange={(e) => updateContent("href", e.target.value)}
+                placeholder="https://example.com"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Link Target</Label>
+              <Select
+                value={block.content.target || "_blank"}
+                onValueChange={(value) => updateContent("target", value)}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="_blank">New Tab</SelectItem>
+                  <SelectItem value="_self">Same Tab</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        )
+
+      case "spacer":
+        return (
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label>Height: {block.content.height || 40}px</Label>
+              <Slider
+                value={[block.content.height || 40]}
+                onValueChange={([value]) => updateContent("height", value)}
+                min={10}
+                max={200}
+                step={5}
+              />
+            </div>
+          </div>
+        )
+
+      default:
+        return (
+          <div className="text-center py-8 text-gray-500">
+            <Settings className="w-12 h-12 mx-auto mb-4 opacity-50" />
+            <p>No content settings available for this element type.</p>
+          </div>
+        )
+    }
+  }
+
   return (
-    <>
-      {/* Padding */}
-      <Card className="p-3">
-        <h4 className="text-sm font-medium mb-3">Padding</h4>
-        <div className="grid grid-cols-2 gap-2">
-          <div>
-            <Label className="text-xs">Top</Label>
-            <Input
-              type="number"
-              value={block.styles.padding?.top || 0}
-              onChange={(e) =>
-                updateStyles({
-                  padding: { ...block.styles.padding, top: Number.parseInt(e.target.value) },
-                })
-              }
-              className="mt-1" />
+    <motion.div
+      initial={{ x: 20, opacity: 0 }}
+      animate={{ x: 0, opacity: 1 }}
+      className="h-full flex flex-col bg-white/90 dark:bg-gray-900/90 backdrop-blur-xl"
+    >
+      {/* Header */}
+      <div className="p-4 border-b border-white/20 dark:border-gray-700/20">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center space-x-2">
+            <div className="p-2 bg-gradient-to-br from-purple-500 to-pink-600 rounded-lg">
+              <Settings className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <h3 className="font-bold text-lg bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+                Properties
+              </h3>
+              <p className="text-xs text-gray-500 dark:text-gray-400">Customize your element</p>
+            </div>
           </div>
-          <div>
-            <Label className="text-xs">Right</Label>
-            <Input
-              type="number"
-              value={block.styles.padding?.right || 0}
-              onChange={(e) =>
-                updateStyles({
-                  padding: { ...block.styles.padding, right: Number.parseInt(e.target.value) },
-                })
-              }
-              className="mt-1" />
-          </div>
-          <div>
-            <Label className="text-xs">Bottom</Label>
-            <Input
-              type="number"
-              value={block.styles.padding?.bottom || 0}
-              onChange={(e) =>
-                updateStyles({
-                  padding: { ...block.styles.padding, bottom: Number.parseInt(e.target.value) },
-                })
-              }
-              className="mt-1" />
-          </div>
-          <div>
-            <Label className="text-xs">Left</Label>
-            <Input
-              type="number"
-              value={block.styles.padding?.left || 0}
-              onChange={(e) =>
-                updateStyles({
-                  padding: { ...block.styles.padding, left: Number.parseInt(e.target.value) },
-                })
-              }
-              className="mt-1" />
-          </div>
+          <Button variant="ghost" size="sm" onClick={onClose}>
+            <X className="w-4 h-4" />
+          </Button>
         </div>
-      </Card>
-      {/* Margin */}
-      <Card className="p-3">
-        <h4 className="text-sm font-medium mb-3">Margin</h4>
-        <div className="grid grid-cols-2 gap-2">
-          <div>
-            <Label className="text-xs">Top</Label>
-            <Input
-              type="number"
-              value={block.styles.margin?.top || 0}
-              onChange={(e) =>
-                updateStyles({
-                  margin: { ...block.styles.margin, top: Number.parseInt(e.target.value) },
-                })
-              }
-              className="mt-1" />
-          </div>
-          <div>
-            <Label className="text-xs">Right</Label>
-            <Input
-              type="number"
-              value={block.styles.margin?.right || 0}
-              onChange={(e) =>
-                updateStyles({
-                  margin: { ...block.styles.margin, right: Number.parseInt(e.target.value) },
-                })
-              }
-              className="mt-1" />
-          </div>
-          <div>
-            <Label className="text-xs">Bottom</Label>
-            <Input
-              type="number"
-              value={block.styles.margin?.bottom || 0}
-              onChange={(e) =>
-                updateStyles({
-                  margin: { ...block.styles.margin, bottom: Number.parseInt(e.target.value) },
-                })
-              }
-              className="mt-1" />
-          </div>
-          <div>
-            <Label className="text-xs">Left</Label>
-            <Input
-              type="number"
-              value={block.styles.margin?.left || 0}
-              onChange={(e) =>
-                updateStyles({
-                  margin: { ...block.styles.margin, left: Number.parseInt(e.target.value) },
-                })
-              }
-              className="mt-1" />
-          </div>
+
+        {/* Block Info */}
+        <div className="flex items-center space-x-2">
+          <Badge variant="secondary" className="bg-purple-100 text-purple-700">
+            {getBlockDisplayName(block.type)}
+          </Badge>
+          <span className="text-xs text-gray-500">ID: {block.id.slice(-8)}</span>
         </div>
-      </Card>
-    </>
-  );
+      </div>
+
+      {/* Tabs */}
+      <div className="flex-1 overflow-hidden">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col">
+          <TabsList className="grid w-full grid-cols-3 mx-4 mt-4">
+            <TabsTrigger value="content">Content</TabsTrigger>
+            <TabsTrigger value="style">Style</TabsTrigger>
+            <TabsTrigger value="actions">Actions</TabsTrigger>
+          </TabsList>
+
+          <div className="flex-1 overflow-y-auto p-4">
+            <TabsContent value="content" className="mt-0">
+              {renderContentControls()}
+            </TabsContent>
+
+            <TabsContent value="style" className="mt-0">
+              {renderStyleControls()}
+            </TabsContent>
+
+            <TabsContent value="actions" className="mt-0">
+              <div className="space-y-3">
+                <Button
+                  variant="outline"
+                  className="w-full justify-start bg-transparent"
+                  onClick={() => {
+                    // Duplicate functionality would be implemented here
+                    console.log("Duplicate block:", block.id)
+                  }}
+                >
+                  <Copy className="w-4 h-4 mr-2" />
+                  Duplicate Element
+                </Button>
+
+                <Button
+                  variant="outline"
+                  className="w-full justify-start bg-transparent"
+                  onClick={() => {
+                    // Move up functionality would be implemented here
+                    console.log("Move up:", block.id)
+                  }}
+                >
+                  <ArrowUp className="w-4 h-4 mr-2" />
+                  Move Up
+                </Button>
+
+                <Button
+                  variant="outline"
+                  className="w-full justify-start bg-transparent"
+                  onClick={() => {
+                    // Move down functionality would be implemented here
+                    console.log("Move down:", block.id)
+                  }}
+                >
+                  <ArrowDown className="w-4 h-4 mr-2" />
+                  Move Down
+                </Button>
+
+                <Separator />
+
+                <Button
+                  variant="destructive"
+                  className="w-full justify-start"
+                  onClick={() => {
+                    // Delete functionality would be implemented here
+                    console.log("Delete block:", block.id)
+                    onClose()
+                  }}
+                >
+                  <Trash2 className="w-4 h-4 mr-2" />
+                  Delete Element
+                </Button>
+              </div>
+            </TabsContent>
+          </div>
+        </Tabs>
+      </div>
+    </motion.div>
+  )
 }

@@ -1,4 +1,5 @@
-"use client";
+"use client"
+
 import { useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { History, Clock, User, GitBranch, RotateCcw, Eye, Download } from "lucide-react"
@@ -8,6 +9,7 @@ import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Separator } from "@/components/ui/separator"
+import { EmailBlock } from "../email-template-maker"
 
 const mockVersions = [
   {
@@ -52,11 +54,7 @@ const mockVersions = [
   },
 ]
 
-export default function VersionHistory({
-  isOpen,
-  onClose,
-  onRestoreVersion
-}) {
+export default function VersionHistory({ isOpen, onClose, onRestoreVersion }) {
   const [selectedVersion, setSelectedVersion] = useState(null)
   const [isComparing, setIsComparing] = useState(false)
 
@@ -69,7 +67,7 @@ export default function VersionHistory({
     if (minutes < 60) return `${minutes} minutes ago`
     const hours = Math.floor(minutes / 60)
     if (hours < 24) return `${hours} hours ago`
-    return `${Math.floor(hours / 24)} days ago`;
+    return `${Math.floor(hours / 24)} days ago`
   }
 
   const handleRestore = (version) => {
@@ -84,12 +82,14 @@ export default function VersionHistory({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+        >
           <motion.div
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.9, opacity: 0 }}
-            className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl h-[700px] flex flex-col">
+            className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl h-[700px] flex flex-col"
+          >
             {/* Header */}
             <CardHeader className="border-b border-gray-200">
               <div className="flex items-center justify-between">
@@ -131,7 +131,8 @@ export default function VersionHistory({
                             ? "border-blue-500 bg-blue-50"
                             : "border-gray-200 hover:border-gray-300 hover:bg-gray-50"
                         }`}
-                        onClick={() => setSelectedVersion(version.id)}>
+                        onClick={() => setSelectedVersion(version.id)}
+                      >
                         <div className="flex items-start space-x-3">
                           <Avatar className="w-8 h-8">
                             <AvatarImage src={version.author.avatar || "/placeholder.svg"} />
@@ -178,6 +179,8 @@ export default function VersionHistory({
                   <>
                     {(() => {
                       const version = mockVersions.find((v) => v.id === selectedVersion)
+                      if (!version) return null
+
                       return (
                         <>
                           <div className="p-4 border-b border-gray-100">
@@ -200,13 +203,15 @@ export default function VersionHistory({
                                 <Button
                                   size="sm"
                                   onClick={() => handleRestore(version)}
-                                  className="bg-blue-600 hover:bg-blue-700">
+                                  className="bg-blue-600 hover:bg-blue-700"
+                                >
                                   <RotateCcw className="w-4 h-4 mr-2" />
                                   Restore
                                 </Button>
                               </div>
                             </div>
                           </div>
+
                           <ScrollArea className="flex-1 p-4">
                             <div className="space-y-4">
                               <div>
@@ -249,15 +254,14 @@ export default function VersionHistory({
 
                               <div>
                                 <h4 className="font-medium text-gray-800 mb-2">Preview</h4>
-                                <div
-                                  className="bg-gray-100 rounded-lg p-4 h-32 flex items-center justify-center">
+                                <div className="bg-gray-100 rounded-lg p-4 h-32 flex items-center justify-center">
                                   <p className="text-gray-500 text-sm">Template preview would appear here</p>
                                 </div>
                               </div>
                             </div>
                           </ScrollArea>
                         </>
-                      );
+                      )
                     })()}
                   </>
                 ) : (
@@ -274,5 +278,5 @@ export default function VersionHistory({
         </motion.div>
       )}
     </AnimatePresence>
-  );
+  )
 }

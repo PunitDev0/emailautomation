@@ -1,4 +1,5 @@
-"use client";
+"use client"
+
 import { useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Code, Palette, Type, Layout, Layers, Settings, Wand2, Eye } from "lucide-react"
@@ -12,12 +13,9 @@ import { Switch } from "@/components/ui/switch"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
 
-export default function AdvancedEditor({
-  isOpen,
-  onClose,
-  selectedBlock,
-  onUpdateBlock
-}) {
+
+
+export default function AdvancedEditor({ isOpen, onClose, selectedBlock, onUpdateBlock }) {
   const [customCSS, setCustomCSS] = useState("")
   const [animations, setAnimations] = useState({
     enabled: false,
@@ -53,18 +51,18 @@ export default function AdvancedEditor({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+        >
           <motion.div
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.9, opacity: 0 }}
-            className="bg-white rounded-2xl shadow-2xl w-full max-w-5xl h-[85vh] flex flex-col">
+            className="bg-white rounded-2xl shadow-2xl w-full max-w-5xl h-[85vh] flex flex-col"
+          >
             {/* Header */}
-            <div
-              className="p-6 border-b border-gray-200 flex items-center justify-between">
+            <div className="p-6 border-b border-gray-200 flex items-center justify-between">
               <div className="flex items-center space-x-3">
-                <div
-                  className="p-2 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl">
+                <div className="p-2 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl">
                   <Settings className="w-6 h-6 text-white" />
                 </div>
                 <div>
@@ -327,7 +325,8 @@ export default function AdvancedEditor({
                         <div className="flex items-center space-x-2">
                           <Switch
                             checked={animations.enabled}
-                            onCheckedChange={(checked) => setAnimations((prev) => ({ ...prev, enabled: checked }))} />
+                            onCheckedChange={(checked) => setAnimations((prev) => ({ ...prev, enabled: checked }))}
+                          />
                           <Label>Enable Animations</Label>
                         </div>
 
@@ -337,7 +336,8 @@ export default function AdvancedEditor({
                               <Label>Animation Type</Label>
                               <Select
                                 value={animations.type}
-                                onValueChange={(value) => setAnimations((prev) => ({ ...prev, type: value }))}>
+                                onValueChange={(value) => setAnimations((prev) => ({ ...prev, type: value }))}
+                              >
                                 <SelectTrigger className="mt-1">
                                   <SelectValue />
                                 </SelectTrigger>
@@ -360,7 +360,8 @@ export default function AdvancedEditor({
                                   min={0.1}
                                   max={3}
                                   step={0.1}
-                                  className="mt-2" />
+                                  className="mt-2"
+                                />
                                 <p className="text-xs text-gray-500 mt-1">{animations.duration}s</p>
                               </div>
                               <div>
@@ -371,7 +372,8 @@ export default function AdvancedEditor({
                                   min={0}
                                   max={2}
                                   step={0.1}
-                                  className="mt-2" />
+                                  className="mt-2"
+                                />
                                 <p className="text-xs text-gray-500 mt-1">{animations.delay}s</p>
                               </div>
                             </div>
@@ -395,7 +397,8 @@ export default function AdvancedEditor({
                         {responsiveBreakpoints.map((breakpoint) => (
                           <div
                             key={breakpoint.name}
-                            className="flex items-center justify-between p-3 border rounded-lg">
+                            className="flex items-center justify-between p-3 border rounded-lg"
+                          >
                             <div className="flex items-center space-x-3">
                               <Switch defaultChecked={breakpoint.active} />
                               <div>
@@ -422,7 +425,8 @@ export default function AdvancedEditor({
                           value={customCSS}
                           onChange={(e) => setCustomCSS(e.target.value)}
                           placeholder="Enter custom CSS here..."
-                          className="font-mono text-sm min-h-[200px]" />
+                          className="font-mono text-sm min-h-[200px]"
+                        />
                         <div className="flex justify-between items-center mt-4">
                           <p className="text-xs text-gray-500">Add custom CSS to override default styles</p>
                           <Button size="sm">Apply CSS</Button>
@@ -435,8 +439,7 @@ export default function AdvancedEditor({
                         <CardTitle>Generated HTML</CardTitle>
                       </CardHeader>
                       <CardContent>
-                        <div
-                          className="bg-gray-100 rounded-lg p-4 font-mono text-sm max-h-[200px] overflow-auto">
+                        <div className="bg-gray-100 rounded-lg p-4 font-mono text-sm max-h-[200px] overflow-auto">
                           <pre>{`<div class="email-block">
   <!-- Generated HTML will appear here -->
   <p>Your block content...</p>
@@ -463,5 +466,5 @@ export default function AdvancedEditor({
         </motion.div>
       )}
     </AnimatePresence>
-  );
+  )
 }

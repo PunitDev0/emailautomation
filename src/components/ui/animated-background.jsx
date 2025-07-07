@@ -17,7 +17,8 @@ export default function AnimatedBackground() {
           duration: 20,
           repeat: Number.POSITIVE_INFINITY,
           ease: "easeInOut",
-        }} />
+        }}
+      />
       <motion.div
         className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-tr from-pink-400/20 to-blue-600/20 rounded-full blur-3xl"
         animate={{
@@ -29,7 +30,8 @@ export default function AnimatedBackground() {
           duration: 25,
           repeat: Number.POSITIVE_INFINITY,
           ease: "easeInOut",
-        }} />
+        }}
+      />
       <motion.div
         className="absolute top-1/2 left-1/2 w-60 h-60 bg-gradient-to-r from-indigo-400/10 to-cyan-400/10 rounded-full blur-3xl"
         animate={{
@@ -41,7 +43,9 @@ export default function AnimatedBackground() {
           duration: 30,
           repeat: Number.POSITIVE_INFINITY,
           ease: "easeInOut",
-        }} />
+        }}
+      />
+
       {/* Floating particles */}
       {Array.from({ length: 20 }).map((_, i) => (
         <motion.div
@@ -60,8 +64,9 @@ export default function AnimatedBackground() {
             repeat: Number.POSITIVE_INFINITY,
             delay: Math.random() * 2,
             ease: "easeInOut",
-          }} />
+          }}
+        />
       ))}
     </div>
-  );
+  )
 }

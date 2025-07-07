@@ -1,14 +1,12 @@
-"use client";
+"use client"
 import { X, Monitor, Smartphone } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import  { EmailBlock } from "./email-template-maker"
 
-export default function PreviewModal({
-  isOpen,
-  onClose,
-  blocks,
-  previewMode
-}) {
+
+
+export default function PreviewModal({ isOpen, onClose, blocks, previewMode }) {
   const generatePreviewHTML = () => {
     return `
 <!DOCTYPE html>
@@ -41,7 +39,7 @@ export default function PreviewModal({
         ${blocks.map((block) => generateBlockPreviewHTML(block)).join("")}
     </div>
 </body>
-</html>`;
+</html>`
   }
 
   return (
@@ -61,15 +59,12 @@ export default function PreviewModal({
 
         <div className="flex-1 p-6 pt-0">
           <div className="h-full bg-gray-100 rounded-lg overflow-hidden">
-            <iframe
-              srcDoc={generatePreviewHTML()}
-              className="w-full h-full border-0"
-              title="Email Preview" />
+            <iframe srcDoc={generatePreviewHTML()} className="w-full h-full border-0" title="Email Preview" />
           </div>
         </div>
       </DialogContent>
     </Dialog>
-  );
+  )
 }
 
 function generateBlockPreviewHTML(block) {
@@ -131,19 +126,23 @@ function generateBlockPreviewHTML(block) {
     case "social":
       const socialHTML = block.content.platforms
         ?.filter((p) => p.enabled)
-        .map((platform) =>
-        `<a href="${platform.url}" style="margin: 0 8px; text-decoration: none;">
-      <img src="/placeholder.svg?height=24&width=24" alt="${platform.name}" style="width: 24px; height: 24px;" />
-     </a>`)
+        .map(
+          (platform) =>
+            `<a href="${platform.url}" style="margin: 0 8px; text-decoration: none;">
+          <img src="/placeholder.svg?height=24&width=24" alt="${platform.name}" style="width: 24px; height: 24px;" />
+         </a>`,
+        )
         .join("")
       return `<div style="${baseStyles} text-align: center;">${socialHTML}</div>`
 
     case "columns":
       const columnsHTML = block.content.columns
-        ?.map((column) =>
-        `<div style="display: inline-block; width: ${column.width}; vertical-align: top; padding: 16px;">
-      ${column.content}
-     </div>`)
+        ?.map(
+          (column) =>
+            `<div style="display: inline-block; width: ${column.width}; vertical-align: top; padding: 16px;">
+          ${column.content}
+         </div>`,
+        )
         .join("")
       return `<div style="${baseStyles}">${columnsHTML}</div>`
 

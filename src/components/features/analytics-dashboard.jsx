@@ -1,4 +1,7 @@
-"use client";
+"use client"
+
+import  React from "react"
+
 import { useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { BarChart3, TrendingUp, Users, Mail, Eye, MousePointerClickIcon as Click, Download } from "lucide-react"
@@ -7,6 +10,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+
 
 const metrics = [
   {
@@ -69,10 +73,7 @@ const campaignData = [
   },
 ]
 
-export default function AnalyticsDashboard({
-  isOpen,
-  onClose
-}) {
+export default function AnalyticsDashboard({ isOpen, onClose }) {
   const [timeRange, setTimeRange] = useState("7d")
 
   return (
@@ -82,15 +83,16 @@ export default function AnalyticsDashboard({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+        >
           <motion.div
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.9, opacity: 0 }}
-            className="bg-white rounded-2xl shadow-2xl w-full max-w-6xl h-[80vh] flex flex-col">
+            className="bg-white rounded-2xl shadow-2xl w-full max-w-6xl h-[80vh] flex flex-col"
+          >
             {/* Header */}
-            <div
-              className="p-6 border-b border-gray-200 flex items-center justify-between">
+            <div className="p-6 border-b border-gray-200 flex items-center justify-between">
               <div className="flex items-center space-x-3">
                 <div className="p-2 bg-gradient-to-br from-green-500 to-blue-600 rounded-xl">
                   <BarChart3 className="w-6 h-6 text-white" />
@@ -140,7 +142,8 @@ export default function AnalyticsDashboard({
                         key={metric.title}
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: index * 0.1 }}>
+                        transition={{ delay: index * 0.1 }}
+                      >
                         <Card className="hover:shadow-lg transition-shadow">
                           <CardContent className="p-6">
                             <div className="flex items-center justify-between">
@@ -155,7 +158,8 @@ export default function AnalyticsDashboard({
                                         : metric.trend === "down"
                                           ? "text-red-500 rotate-180"
                                           : "text-gray-400"
-                                    }`} />
+                                    }`}
+                                  />
                                   <span
                                     className={`text-sm font-medium ${
                                       metric.trend === "up"
@@ -163,7 +167,8 @@ export default function AnalyticsDashboard({
                                         : metric.trend === "down"
                                           ? "text-red-600"
                                           : "text-gray-600"
-                                    }`}>
+                                    }`}
+                                  >
                                     {metric.change}
                                   </span>
                                 </div>
@@ -185,8 +190,7 @@ export default function AnalyticsDashboard({
                         <CardTitle>Open Rate Trend</CardTitle>
                       </CardHeader>
                       <CardContent>
-                        <div
-                          className="h-64 bg-gradient-to-br from-blue-50 to-indigo-100 rounded-lg flex items-center justify-center">
+                        <div className="h-64 bg-gradient-to-br from-blue-50 to-indigo-100 rounded-lg flex items-center justify-center">
                           <p className="text-gray-500">Chart visualization would appear here</p>
                         </div>
                       </CardContent>
@@ -197,8 +201,7 @@ export default function AnalyticsDashboard({
                         <CardTitle>Click-through Rate</CardTitle>
                       </CardHeader>
                       <CardContent>
-                        <div
-                          className="h-64 bg-gradient-to-br from-green-50 to-emerald-100 rounded-lg flex items-center justify-center">
+                        <div className="h-64 bg-gradient-to-br from-green-50 to-emerald-100 rounded-lg flex items-center justify-center">
                           <p className="text-gray-500">Chart visualization would appear here</p>
                         </div>
                       </CardContent>
@@ -218,7 +221,8 @@ export default function AnalyticsDashboard({
                         key={campaign.name}
                         initial={{ opacity: 0, x: -20 }}
                         animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: index * 0.1 }}>
+                        transition={{ delay: index * 0.1 }}
+                      >
                         <Card className="hover:shadow-md transition-shadow">
                           <CardContent className="p-6">
                             <div className="flex items-center justify-between">
@@ -284,5 +288,5 @@ export default function AnalyticsDashboard({
         </motion.div>
       )}
     </AnimatePresence>
-  );
+  )
 }
