@@ -179,7 +179,7 @@ export function useTemplate(id) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
 
-  const { toast } = useToast()
+
 
   const fetchTemplate = useCallback(
     async (templateId) => {

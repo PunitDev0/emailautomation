@@ -4,7 +4,7 @@ import { Plus, Mail, Edit, Eye, Copy, Trash2 } from "lucide-react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { EmailTemplateBuilder } from "@/components/email-template-builder"
-import { useToast } from "@/hooks/use-toast"
+import { toast} from "sonner"
 
 const mockTemplates = [
   {
@@ -87,7 +87,7 @@ export function EmailTemplatesPage() {
   const [templates, setTemplates] = useState(mockTemplates)
   const [isBuilderOpen, setIsBuilderOpen] = useState(false)
   const [editingTemplate, setEditingTemplate] = useState(null)
-  const { toast } = useToast()
+
 
   const handleCreateTemplate = () => {
     setEditingTemplate(null)

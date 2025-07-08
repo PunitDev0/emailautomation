@@ -9,14 +9,15 @@ import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "@/comp
 import  { EmailBlock } from "../email-template-maker"
 
 
+
 export default function QuickActions({ onAddBlock, onShowTemplates, onShowAI, isMobile }) {
   const [isExpanded, setIsExpanded] = useState(false)
 
   const quickBlocks = [
-    { type: "text", icon: Type, label: "Add Text", color: "bg-blue-500" },
-    { type: "image", icon: ImageIcon, label: "Add Image", color: "bg-green-500" },
-    { type: "button", icon: MousePointer, label: "Add Button", color: "bg-purple-500" },
-    { type: "social", icon: Sparkles, label: "Social Media", color: "bg-pink-500" },
+    { type: "text" , icon: Type, label: "Add Text", color: "bg-blue-500" },
+    { type: "image" , icon: ImageIcon, label: "Add Image", color: "bg-green-500" },
+    { type: "button" , icon: MousePointer, label: "Add Button", color: "bg-purple-500" },
+    { type: "social" , icon: Sparkles, label: "Social Media", color: "bg-pink-500" },
   ]
 
   if (isMobile) {

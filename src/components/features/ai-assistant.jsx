@@ -7,6 +7,9 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { ScrollArea } from "@/components/ui/scroll-area"
 
+
+
+
 const quickPrompts = [
   "Create a professional newsletter template",
   "Design a product launch announcement",
@@ -30,7 +33,7 @@ export default function AIAssistant({ isOpen, onClose, onGenerateTemplate, onOpt
   const [input, setInput] = useState("")
   const [isTyping, setIsTyping] = useState(false)
 
-  const handleSendMessage = () => {
+  const handleSendMessage = async () => {
     if (!input.trim()) return
 
     const userMessage = {
@@ -44,6 +47,7 @@ export default function AIAssistant({ isOpen, onClose, onGenerateTemplate, onOpt
     setInput("")
     setIsTyping(true)
 
+    // Simulate AI response
     setTimeout(() => {
       const aiResponse = {
         id: (Date.now() + 1).toString(),

@@ -1,6 +1,6 @@
 "use client"
 
-import React,{ useState, useCallback } from "react"
+import { useState, useCallback } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
@@ -28,6 +28,7 @@ import {
   AlertCircle,
 } from "lucide-react"
 import { useDebouncedCallback } from "../../hooks/use-debounce"
+
 
 const linkTemplates = {
   website: {
@@ -81,7 +82,7 @@ export default function LinkEditorModal({
   existingLink,
 }) {
   const [linkData, setLinkData] = useState({
-    text: selectedText || "",
+    text: selectedText,
     url: "",
     target: "_blank",
     type: "website",
@@ -90,9 +91,10 @@ export default function LinkEditorModal({
     ...existingLink,
   })
 
-  const [tempUrl, setTempUrl] = useState(linkData.url)
+  const [tempUrl, setTempUrl] = useState(linkData.url) // For immediate UI updates
   const [isValidUrl, setIsValidUrl] = useState(true)
 
+  // Debounced URL validation - 300ms delay
   const debouncedValidateUrl = useDebouncedCallback((url) => {
     if (!url) {
       setIsValidUrl(true)
@@ -103,6 +105,7 @@ export default function LinkEditorModal({
       new URL(url)
       setIsValidUrl(true)
     } catch {
+      // Check for special cases
       const isEmail = url.startsWith("mailto:")
       const isPhone = url.startsWith("tel:")
       const isRelative = url.startsWith("/") || url.startsWith("#")
@@ -113,7 +116,7 @@ export default function LinkEditorModal({
 
   const handleUrlChange = useCallback(
     (url) => {
-      setTempUrl(url)
+      setTempUrl(url) // Immediate UI update
       setLinkData((prev) => ({ ...prev, url }))
       debouncedValidateUrl(url)
     },
@@ -125,10 +128,9 @@ export default function LinkEditorModal({
 
     onInsertLink({
       ...linkData,
-      url: tempUrl,
+      url: tempUrl, // Use the latest URL value
     })
-    onClose()
-  }, [linkData, tempUrl, onInsertLink, onClose])
+  }, [linkData, tempUrl, onInsertLink])
 
   const handleTemplateSelect = useCallback(
     (template) => {
@@ -184,12 +186,13 @@ export default function LinkEditorModal({
         </DialogHeader>
 
         <div className="flex flex-col space-y-6 max-h-[70vh] overflow-y-auto">
+          {/* Selected Text Display */}
           <Card className="p-4 bg-blue-50 border-blue-200">
             <div className="flex items-center space-x-2">
               <Badge variant="outline" className="bg-blue-100 text-blue-800">
                 Selected Text
               </Badge>
-              <span className="font-medium text-blue-900">"{linkData.text || selectedText}"</span>
+              <span className="font-medium text-blue-900">"{selectedText}"</span>
             </div>
             <p className="text-xs text-blue-600 mt-2">This text will become clickable with your link</p>
           </Card>
@@ -210,7 +213,9 @@ export default function LinkEditorModal({
                         className={`p-4 cursor-pointer transition-all duration-200 hover:shadow-md ${
                           linkData.type === key ? "ring-2 ring-blue-500 bg-blue-50" : "hover:bg-gray-50"
                         }`}
-                        onClick={() => handleTemplateSelect({ ...template, type: key })}
+                        onClick={() => {
+                          setLinkData((prev) => ({ ...prev, type }))
+                        }}
                       >
                         <div className="flex items-center space-x-3">
                           <div className="p-2 bg-blue-100 rounded-lg">
@@ -227,11 +232,12 @@ export default function LinkEditorModal({
                 })}
               </div>
 
+              {/* Quick Examples */}
               {linkData.type && (
                 <Card className="p-4">
                   <h4 className="font-medium text-gray-900 mb-3 flex items-center">
-                    {React.createElement(linkTemplates[linkData.type].icon, { className: "w-5 h-5 mr-2" })}
-                    <span>{linkTemplates[linkData.type].label} Examples</span>
+                    {linkTemplates[linkData.type].icon} {/* Removed the brackets */}
+                    <span>{linkTemplates[linkData.type].label} Examples</span> {/* Removed the brackets */}
                   </h4>
                   <div className="space-y-2">
                     {linkTemplates[linkData.type].examples.map((example, index) => (
@@ -354,6 +360,7 @@ export default function LinkEditorModal({
             </TabsContent>
           </Tabs>
 
+          {/* Link Preview */}
           <AnimatePresence>
             {tempUrl && (
               <motion.div
@@ -368,12 +375,11 @@ export default function LinkEditorModal({
                     Link Preview
                   </h4>
                   <div className="flex items-center space-x-3">
-                    {linkData.type === "social" && (
+                    {linkData.type === "social" &&
                       (() => {
                         const SocialIcon = getSocialIcon(tempUrl)
                         return <SocialIcon className="w-5 h-5 text-blue-600" />
-                      })()
-                    )}
+                      })()}
                     <div>
                       <p className="text-sm">
                         <span
@@ -392,6 +398,7 @@ export default function LinkEditorModal({
           </AnimatePresence>
         </div>
 
+        {/* Footer Actions */}
         <div className="flex items-center justify-between pt-4 border-t border-gray-200">
           <div className="text-xs text-gray-500">
             {linkData.text && tempUrl ? (

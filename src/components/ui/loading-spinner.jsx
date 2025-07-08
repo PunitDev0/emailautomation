@@ -3,6 +3,7 @@
 import { motion } from "framer-motion"
 
 
+
 export default function LoadingSpinner({ size = "md", className = "" }) {
   const sizeClasses = {
     sm: "w-4 h-4",

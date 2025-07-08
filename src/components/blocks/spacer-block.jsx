@@ -1,25 +1,47 @@
 "use client"
 
-import { motion } from "framer-motion"
-import { EmailBlock } from "../email-template-maker"
+import { Move } from "lucide-react"
 
-
-export default function SpacerBlock({ block, onUpdate }) {
-  const spacerStyles = {
-    height: `${block.content.height}px`,
-    backgroundColor: "transparent",
+export default function SpacerBlock({ block, isSelected, onUpdate, onSelect, previewMode }) {
+  const getResponsiveStyles = () => {
+    const baseStyles = block.styles || {}
+    const responsiveStyles = block.responsive?.[previewMode] || {}
+    return { ...baseStyles, ...responsiveStyles }
   }
 
+  const styles = getResponsiveStyles()
+
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      style={spacerStyles}
-      className="w-full relative group"
+    <div
+      className={`relative group transition-all duration-200 ${
+        isSelected
+          ? "ring-2 ring-blue-500 ring-opacity-50 bg-blue-50 dark:bg-blue-900/20"
+          : "hover:bg-gray-50 dark:hover:bg-gray-800/50"
+      }`}
+      onClick={() => onSelect(block.id)}
+      style={{
+        height: `${block.content.height || 40}px`,
+        margin: `${styles.margin?.top || 0}px ${styles.margin?.right || 0}px ${styles.margin?.bottom || 0}px ${styles.margin?.left || 0}px`,
+        backgroundColor: isSelected ? undefined : "transparent",
+      }}
     >
-      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-blue-50 border-2 border-dashed border-blue-300 flex items-center justify-center">
-        <span className="text-xs text-blue-600 font-medium">Spacer ({block.content.height}px)</span>
-      </div>
-    </motion.div>
+      {/* Spacer Visualization */}
+      {isSelected && (
+        <div className="absolute inset-0 flex items-center justify-center">
+          <div className="bg-blue-500 text-white text-xs px-2 py-1 rounded-full flex items-center space-x-1">
+            <Move className="w-3 h-3" />
+            <span>{block.content.height || 40}px</span>
+          </div>
+        </div>
+      )}
+
+      {/* Block Type Indicator */}
+      {isSelected && (
+        <div className="absolute -top-6 -right-2 bg-indigo-500 text-white text-xs px-2 py-1 rounded-full flex items-center space-x-1">
+          <Move className="w-3 h-3" />
+          <span>Spacer</span>
+        </div>
+      )}
+    </div>
   )
 }

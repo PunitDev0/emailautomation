@@ -10,6 +10,8 @@ import { Input } from "@/components/ui/input"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Separator } from "@/components/ui/separator"
 
+
+
 const mockCollaborators = [
   {
     id: "1",
@@ -69,6 +71,8 @@ export default function CollaborationPanel({ isOpen, onClose }) {
 
   const handleInvite = () => {
     if (!inviteEmail.trim()) return
+
+    // Simulate sending invite
     console.log("Inviting:", inviteEmail)
     setInviteEmail("")
   }
@@ -149,7 +153,7 @@ export default function CollaborationPanel({ isOpen, onClose }) {
           </div>
 
           <ScrollArea className="flex-1">
-            {/* Collaborators */}
+            {/* Active Collaborators */}
             <div className="p-4">
               <h3 className="text-sm font-medium text-gray-700 mb-3">
                 Active Collaborators ({collaborators.filter((c) => c.status === "online").length})
@@ -199,6 +203,7 @@ export default function CollaborationPanel({ isOpen, onClose }) {
                 Comments ({comments.filter((c) => !c.resolved).length} active)
               </h3>
 
+              {/* Add Comment */}
               <div className="mb-4">
                 <div className="flex space-x-2">
                   <Input
@@ -214,6 +219,7 @@ export default function CollaborationPanel({ isOpen, onClose }) {
                 </div>
               </div>
 
+              {/* Comments List */}
               <div className="space-y-4">
                 {comments.map((comment) => (
                   <motion.div
@@ -248,7 +254,7 @@ export default function CollaborationPanel({ isOpen, onClose }) {
             </div>
           </ScrollArea>
 
-          {/* Live Cursors */}
+          {/* Live Cursors Indicator */}
           <div className="p-4 border-t border-gray-200">
             <div className="flex items-center space-x-2">
               <div className="flex -space-x-1">
@@ -258,7 +264,7 @@ export default function CollaborationPanel({ isOpen, onClose }) {
                     <motion.div
                       key={collaborator.id}
                       animate={{ scale: [1, 1.1, 1] }}
-                      transition={{ duration: 2, repeat: Infinity }}
+                      transition={{ duration: 2, repeat: Number.POSITIVE_INFINITY }}
                       className="w-3 h-3 rounded-full border-2 border-white"
                       style={{ backgroundColor: collaborator.cursor?.color }}
                     />

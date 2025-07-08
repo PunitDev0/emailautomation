@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge"
 import { Card } from "@/components/ui/card"
 
 
+
 export default function NotificationCenter({
   isOpen,
   onClose,
@@ -42,7 +43,7 @@ export default function NotificationCenter({
     }
   }
 
-  const unreadCount = notifications.filter((n) => !n.read).length
+  const unreadCount = notifications?.filter((n) => !n.read).length
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -58,7 +59,7 @@ export default function NotificationCenter({
               )}
             </div>
             <div className="flex items-center space-x-1">
-              {notifications.length > 0 && (
+              {notifications?.length > 0 && (
                 <Button variant="ghost" size="sm" onClick={onClearAll}>
                   <Trash2 className="w-4 h-4" />
                 </Button>
@@ -72,7 +73,7 @@ export default function NotificationCenter({
 
         <ScrollArea className="flex-1 px-4 pb-4">
           <AnimatePresence>
-            {notifications.length === 0 ? (
+            {notifications?.length === 0 ? (
               <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center py-12">
                 <div className="w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
                   <CheckCircle className="w-8 h-8 text-gray-400" />
@@ -82,7 +83,7 @@ export default function NotificationCenter({
               </motion.div>
             ) : (
               <div className="space-y-3">
-                {notifications.map((notification, index) => (
+                {notifications?.map((notification, index) => (
                   <motion.div
                     key={notification.id}
                     initial={{ opacity: 0, y: 20 }}
@@ -114,6 +115,7 @@ export default function NotificationCenter({
                                 variant="outline"
                                 onClick={(e) => {
                                   e.stopPropagation()
+                                  notification.action.onClick()
                                 }}
                                 className="h-6 px-2 text-xs"
                               >
@@ -131,14 +133,14 @@ export default function NotificationCenter({
           </AnimatePresence>
         </ScrollArea>
 
-        {notifications.length > 0 && (
+        {notifications?.length > 0 && (
           <div className="p-4 border-t border-gray-200">
             <div className="flex items-center justify-between text-sm text-gray-500">
-              <span>{notifications.length} total notifications</span>
+              <span>{notifications?.length} total notifications</span>
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => notifications.forEach((n) => !n.read && onMarkAsRead(n.id))}
+                onClick={() => notifications?.forEach((n) => !n.read && onMarkAsRead(n.id))}
                 disabled={unreadCount === 0}
               >
                 <Check className="w-4 h-4 mr-1" />

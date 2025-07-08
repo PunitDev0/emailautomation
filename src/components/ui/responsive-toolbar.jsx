@@ -10,7 +10,6 @@ import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "@/comp
 import { Badge } from "@/components/ui/badge"
 
 
-
 export default function ResponsiveToolbar({
   zoomLevel,
   onZoomChange,

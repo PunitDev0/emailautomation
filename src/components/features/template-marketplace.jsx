@@ -76,6 +76,7 @@ const marketplaceTemplates = [
   },
 ]
 
+
 export default function TemplateMarketplace({ isOpen, onClose, onPurchaseTemplate }) {
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedCategory, setSelectedCategory] = useState("all")

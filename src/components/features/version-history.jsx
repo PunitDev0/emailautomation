@@ -11,6 +11,8 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { Separator } from "@/components/ui/separator"
 import { EmailBlock } from "../email-template-maker"
 
+
+
 const mockVersions = [
   {
     id: "v1.5",
@@ -126,11 +128,10 @@ export default function VersionHistory({ isOpen, onClose, onRestoreVersion }) {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: index * 0.05 }}
                         whileHover={{ scale: 1.02 }}
-                        className={`p-4 rounded-lg border cursor-pointer transition-all ${
-                          selectedVersion === version.id
+                        className={`p-4 rounded-lg border cursor-pointer transition-all ${selectedVersion === version.id
                             ? "border-blue-500 bg-blue-50"
                             : "border-gray-200 hover:border-gray-300 hover:bg-gray-50"
-                        }`}
+                          }`}
                         onClick={() => setSelectedVersion(version.id)}
                       >
                         <div className="flex items-start space-x-3">
@@ -178,11 +179,11 @@ export default function VersionHistory({ isOpen, onClose, onRestoreVersion }) {
                 {selectedVersion ? (
                   <>
                     {(() => {
-                      const version = mockVersions.find((v) => v.id === selectedVersion)
-                      if (!version) return null
+                      const version = mockVersions.find((v) => v.id === selectedVersion);
 
                       return (
                         <>
+                          {/* Header Section */}
                           <div className="p-4 border-b border-gray-100">
                             <div className="flex items-center justify-between mb-4">
                               <div>
@@ -203,7 +204,7 @@ export default function VersionHistory({ isOpen, onClose, onRestoreVersion }) {
                                 <Button
                                   size="sm"
                                   onClick={() => handleRestore(version)}
-                                  className="bg-blue-600 hover:bg-blue-700"
+                                  className="bg-blue-600 hover:bg-blue-700 text-white"
                                 >
                                   <RotateCcw className="w-4 h-4 mr-2" />
                                   Restore
@@ -212,8 +213,10 @@ export default function VersionHistory({ isOpen, onClose, onRestoreVersion }) {
                             </div>
                           </div>
 
+                          {/* Content Scroll Section */}
                           <ScrollArea className="flex-1 p-4">
-                            <div className="space-y-4">
+                            <div className="space-y-6">
+                              {/* Changes Made Section */}
                               <div>
                                 <h4 className="font-medium text-gray-800 mb-2">Changes Made</h4>
                                 <div className="space-y-2">
@@ -228,6 +231,7 @@ export default function VersionHistory({ isOpen, onClose, onRestoreVersion }) {
 
                               <Separator />
 
+                              {/* Version Info Section */}
                               <div>
                                 <h4 className="font-medium text-gray-800 mb-2">Version Info</h4>
                                 <div className="grid grid-cols-2 gap-4 text-sm">
@@ -245,13 +249,16 @@ export default function VersionHistory({ isOpen, onClose, onRestoreVersion }) {
                                   </div>
                                   <div>
                                     <p className="text-gray-600">Type</p>
-                                    <p className="text-gray-800">{version.isAutoSave ? "Auto-save" : "Manual save"}</p>
+                                    <p className="text-gray-800">
+                                      {version.isAutoSave ? "Auto-save" : "Manual save"}
+                                    </p>
                                   </div>
                                 </div>
                               </div>
 
                               <Separator />
 
+                              {/* Preview Section */}
                               <div>
                                 <h4 className="font-medium text-gray-800 mb-2">Preview</h4>
                                 <div className="bg-gray-100 rounded-lg p-4 h-32 flex items-center justify-center">
@@ -261,9 +268,10 @@ export default function VersionHistory({ isOpen, onClose, onRestoreVersion }) {
                             </div>
                           </ScrollArea>
                         </>
-                      )
+                      );
                     })()}
                   </>
+
                 ) : (
                   <div className="flex-1 flex items-center justify-center">
                     <div className="text-center text-gray-500">
