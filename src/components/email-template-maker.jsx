@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useCallback, useEffect } from "react"
+import { useRouter, useSearchParams } from "next/navigation"
 import { DndContext, closestCenter } from "@dnd-kit/core"
 import { arrayMove } from "@dnd-kit/sortable"
 import { restrictToWindowEdges } from "@dnd-kit/modifiers"
@@ -27,6 +28,18 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { toast } from "sonner"
+import Image from "next/image"
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  DialogTrigger,
+} from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 // Import components
 import Sidebar from "./sidebar"
@@ -49,7 +62,6 @@ import QRBlock from "./blocks/qr-block"
 import MapBlock from "./blocks/map-block"
 import ChartBlock from "./blocks/chart-block"
 import CalendarBlock from "./blocks/calendar-block"
-import Image from "next/image"
 
 // Add new block types to the components map
 const additionalBlockComponents = {
@@ -67,7 +79,7 @@ export default function EmailTemplateMaker() {
   const [activeTab, setActiveTab] = useState("design")
 
   // UI state
-  const [isVisible, setisVisible] = useState(false)
+  const [isVisible, setIsVisible] = useState(false)
   const [showPropertyPanel, setShowPropertyPanel] = useState(false)
   const [showPreview, setShowPreview] = useState(false)
   const [showExport, setShowExport] = useState(false)
@@ -79,6 +91,7 @@ export default function EmailTemplateMaker() {
   const [showAnalytics, setShowAnalytics] = useState(false)
   const [showMarketplace, setShowMarketplace] = useState(false)
   const [showNotifications, setShowNotifications] = useState(false)
+  const [showSaveDialog, setShowSaveDialog] = useState(false)
 
   // History for undo/redo
   const [history, setHistory] = useState([])
@@ -86,14 +99,54 @@ export default function EmailTemplateMaker() {
 
   // Template state
   const [templateName, setTemplateName] = useState("Untitled Template")
+  const [templateCategory, setTemplateCategory] = useState("other")
+  const [templateDescription, setTemplateDescription] = useState("")
   const [templateMetadata, setTemplateMetadata] = useState({
-    lastSaved: null,
     version: "1.0.0",
-    author: "Anonymous",
+    createdBy: "Anonymous",
     tags: [],
+    isPublic: false,
+    isPremium: false,
+    usageCount: 0,
+    rating: 0,
+    createdAt: new Date().toISOString(),
+    updatedAt: null,
   })
 
+  // Save dialog state
+  const [dialogName, setDialogName] = useState(templateName)
+  const [dialogDescription, setDialogDescription] = useState(templateDescription)
+  const [dialogCategory, setDialogCategory] = useState(templateCategory)
+  const [nameError, setNameError] = useState("")
 
+  const router = useRouter()
+  const searchParams = useSearchParams()
+
+  // Fetch template by ID if provided
+  useEffect(() => {
+    const templateId = searchParams.get("template") || router.query?.id
+    if (templateId) {
+      const fetchTemplate = async () => {
+        try {
+          const response = await fetch(`/api/tempelates/${templateId}`)
+          const result = await response.json()
+          if (!response.ok || !result.success) {
+            throw new Error(result.error || "Failed to load template")
+          }
+          handleLoadTemplate(result.data)
+        } catch (error) {
+          console.error("Fetch template error:", error)
+          toast({
+            title: "Load Failed! ❌",
+            description: error.message || "There was an error loading the template.",
+            duration: 3000,
+            variant: "destructive",
+          })
+        }
+      }
+      fetchTemplate()
+    }
+  }, [searchParams, router.query])
 
   // Save current state to history
   const saveToHistory = useCallback(() => {
@@ -115,7 +168,7 @@ export default function EmailTemplateMaker() {
         duration: 1500,
       })
     }
-  }, [history, historyIndex, toast])
+  }, [history, historyIndex])
 
   // Redo functionality
   const redo = useCallback(() => {
@@ -129,7 +182,7 @@ export default function EmailTemplateMaker() {
         duration: 1500,
       })
     }
-  }, [history, historyIndex, toast])
+  }, [history, historyIndex])
 
   // Keyboard shortcuts
   useEffect(() => {
@@ -146,7 +199,7 @@ export default function EmailTemplateMaker() {
             break
           case "s":
             e.preventDefault()
-            handleSave()
+            setShowSaveDialog(true)
             break
           case "p":
             e.preventDefault()
@@ -200,7 +253,7 @@ export default function EmailTemplateMaker() {
         duration: 2000,
       })
     },
-    [blocks, saveToHistory, toast],
+    [blocks, saveToHistory],
   )
 
   // Get default content for block types
@@ -343,7 +396,6 @@ export default function EmailTemplateMaker() {
         margin: { top: 0, right: 0, bottom: 16, left: 0 },
         display: "inline-block",
       },
-      // Add more default styles as needed
     }
 
     return {
@@ -380,7 +432,7 @@ export default function EmailTemplateMaker() {
         duration: 2000,
       })
     },
-    [selectedBlockId, saveToHistory, toast],
+    [selectedBlockId, saveToHistory],
   )
 
   // Duplicate block
@@ -408,7 +460,7 @@ export default function EmailTemplateMaker() {
         })
       }
     },
-    [blocks, saveToHistory, toast],
+    [blocks, saveToHistory],
   )
 
   // Move block
@@ -436,48 +488,104 @@ export default function EmailTemplateMaker() {
     setShowPropertyPanel(true)
   }, [])
 
-  // Save template
+  // Save template to database
   const handleSave = useCallback(async () => {
+    if (!dialogName || !dialogName.trim()) {
+      setNameError("Template name is required")
+      return
+    }
+    if (dialogName.length > 100) {
+      setNameError("Template name cannot exceed 100 characters")
+      return
+    }
+    if (dialogDescription.length > 500) {
+      setNameError("Description cannot exceed 500 characters")
+      return
+    }
+
+    setNameError("")
+    setTemplateName(dialogName)
+    setTemplateDescription(dialogDescription)
+    setTemplateCategory(dialogCategory)
+
     try {
       const templateData = {
-        name: templateName,
+        name: dialogName.trim(),
+        description: dialogDescription.trim(),
+        category: dialogCategory,
+        thumbnail: null,
         blocks,
+        styles: {},
         metadata: {
           ...templateMetadata,
-          lastSaved: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+          createdBy: templateMetadata.createdBy || "Anonymous",
         },
-        previewMode,
+        responsive: {
+          mobile: {},
+          tablet: {},
+          desktop: {},
+        },
       }
 
-      // In a real app, you'd save to a backend
-      localStorage.setItem("email-template", JSON.stringify(templateData))
+      const response = await fetch("/api/tempelates", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(templateData),
+      })
+
+      const result = await response.json()
+
+      if (!response.ok || !result.success) {
+        throw new Error(result.error || "Failed to save template")
+      }
 
       setTemplateMetadata((prev) => ({
         ...prev,
-        lastSaved: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        createdAt: result.data.metadata.createdAt,
       }))
+      setShowSaveDialog(false)
 
       toast({
         title: "Template Saved! 💾",
-        description: "Your template has been saved successfully.",
+        description: result.message || "Your template has been saved successfully.",
         duration: 2000,
       })
     } catch (error) {
+      console.error("Save template error:", error)
       toast({
         title: "Save Failed! ❌",
-        description: "There was an error saving your template.",
+        description: error.message || "There was an error saving your template.",
         duration: 3000,
         variant: "destructive",
       })
     }
-  }, [templateName, blocks, templateMetadata, previewMode, toast])
+  }, [dialogName, dialogDescription, dialogCategory, blocks, templateMetadata])
 
   // Load template
   const handleLoadTemplate = useCallback(
     (templateData) => {
       setBlocks(templateData.blocks || [])
       setTemplateName(templateData.name || "Untitled Template")
-      setTemplateMetadata(templateData.metadata || {})
+      setTemplateDescription(templateData.description || "")
+      setTemplateCategory(templateData.category || "other")
+      setDialogName(templateData.name || "Untitled Template")
+      setDialogDescription(templateData.description || "")
+      setDialogCategory(templateData.category || "other")
+      setTemplateMetadata({
+        version: templateData.metadata?.version || "1.0.0",
+        createdBy: templateData.metadata?.createdBy || "Anonymous",
+        tags: templateData.metadata?.tags || [],
+        isPublic: templateData.metadata?.isPublic || false,
+        isPremium: templateData.metadata?.isPremium || false,
+        usageCount: templateData.metadata?.usageCount || 0,
+        rating: templateData.metadata?.rating || 0,
+        createdAt: templateData.metadata?.createdAt || new Date().toISOString(),
+        updatedAt: templateData.metadata?.updatedAt || null,
+      })
       setSelectedBlockId(null)
       setShowPropertyPanel(false)
       setShowTemplateLibrary(false)
@@ -489,7 +597,7 @@ export default function EmailTemplateMaker() {
         duration: 2000,
       })
     },
-    [saveToHistory, toast],
+    [saveToHistory],
   )
 
   // Handle drag end for reordering
@@ -520,6 +628,7 @@ export default function EmailTemplateMaker() {
                 src={'/assets/logo.png'}
                 width={50}
                 height={50}
+                alt="Mail Synk Logo"
               />
               <div>
                 <h1 className="text-xl font-bold text-gray-800 dark:text-white">Mail Synk</h1>
@@ -547,10 +656,10 @@ export default function EmailTemplateMaker() {
                 <Eye className="w-3 h-3" />
                 <span>Performance</span>
               </Badge>
-              {templateMetadata.lastSaved && (
+              {templateMetadata.updatedAt && (
                 <Badge variant="outline" className="flex items-center space-x-1">
                   <Save className="w-3 h-3" />
-                  <span>Saved {new Date(templateMetadata.lastSaved).toLocaleTimeString()}</span>
+                  <span>Saved {new Date(templateMetadata.updatedAt).toLocaleTimeString()}</span>
                 </Badge>
               )}
             </div>
@@ -616,10 +725,103 @@ export default function EmailTemplateMaker() {
               Preview
             </Button>
 
-            <Button size="sm" onClick={handleSave} className="bg-blue-600 hover:bg-blue-700">
-              <Save className="w-4 h-4 mr-1" />
-              Save
-            </Button>
+            <Dialog open={showSaveDialog} onOpenChange={setShowSaveDialog}>
+              <DialogTrigger asChild>
+                <Button size="sm" className="bg-blue-600 hover:bg-blue-700">
+                  <Save className="w-4 h-4 mr-1" />
+                  Save
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-[425px]">
+                <DialogHeader>
+                  <DialogTitle>Save Template</DialogTitle>
+                </DialogHeader>
+                <div className="grid gap-4 py-4">
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="name" className="text-right">
+                      Name
+                    </Label>
+                    <Input
+                      id="name"
+                      value={dialogName}
+                      onChange={(e) => {
+                        setDialogName(e.target.value)
+                        setNameError("")
+                      }}
+                      className="col-span-3"
+                      placeholder="Enter template name"
+                    />
+                  </div>
+                  {nameError && (
+                    <p className="text-red-500 text-sm col-span-4 text-center">{nameError}</p>
+                  )}
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="description" className="text-right">
+                      Description
+                    </Label>
+                    <Input
+                      id="description"
+                      value={dialogDescription}
+                      onChange={(e) => {
+                        setDialogDescription(e.target.value)
+                        setNameError("")
+                      }}
+                      className="col-span-3"
+                      placeholder="Enter template description (optional)"
+                    />
+                  </div>
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="category" className="text-right">
+                      Category
+                    </Label>
+                    <Select
+                      value={dialogCategory}
+                      onValueChange={(value) => {
+                        setDialogCategory(value)
+                        setNameError("")
+                      }}
+                    >
+                      <SelectTrigger className="col-span-3">
+                        <SelectValue placeholder="Select category" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {[
+                          "business",
+                          "newsletter",
+                          "promotional",
+                          "event",
+                          "announcement",
+                          "personal",
+                          "other",
+                          "welcome",
+                          "transactional",
+                          "abandoned-cart",
+                        ].map((cat) => (
+                          <SelectItem key={cat} value={cat}>
+                            {cat.charAt(0).toUpperCase() + cat.slice(1).replace("-", " ")}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                <DialogFooter>
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      setShowSaveDialog(false)
+                      setNameError("")
+                      setDialogName(templateName)
+                      setDialogDescription(templateDescription)
+                      setDialogCategory(templateCategory)
+                    }}
+                  >
+                    Cancel
+                  </Button>
+                  <Button onClick={handleSave}>Save Template</Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
 
             <Button size="sm" variant="outline" onClick={() => setShowExport(true)}>
               <Download className="w-4 h-4 mr-1" />
@@ -735,7 +937,7 @@ export default function EmailTemplateMaker() {
       </div>
 
       {/* Performance Monitor */}
-      <PerformanceMonitor blocks={blocks} isVisible={isVisible} setisVisible={setisVisible} />
+      <PerformanceMonitor blocks={blocks} isVisible={isVisible} setIsVisible={setIsVisible} />
 
       {/* Modals and Panels */}
       <PreviewModal

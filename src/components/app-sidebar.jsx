@@ -33,27 +33,27 @@ import {
 
 const mainMenuItems = [
   { title: "Dashboard", url: "/dashboard", icon: Home },
-  { title: "Campaigns", url: "/", icon: Mail },
-  { title: "Subscribers", url: "/subscribers", icon: Users },
-  { title: "Segments", url: "/segments", icon: Layers },
-  { title: "Templates", url: "/templates", icon: FileText },
+  { title: "Campaigns", url: "/dashboard/campaigns", icon: Mail },
+  { title: "Subscribers", url: "/dashboard/subscribers", icon: Users },
+  { title: "Segments", url: "/dashboard/segments", icon: Layers },
+  { title: "Templates", url: "/dashboard/templates", icon: FileText },
 ]
 
 const automationItems = [
-  { title: "Workflows", url: "/automation", icon: Workflow },
-  { title: "Triggers", url: "/triggers", icon: Zap },
-  { title: "Sequences", url: "/sequences", icon: Send },
+  { title: "Workflows", url: "/dashboard/automation", icon: Workflow },
+  { title: "Triggers", url: "/dashboard/triggers", icon: Zap },
+  { title: "Sequences", url: "/dashboard/sequences", icon: Send },
 ]
 
 const analyticsItems = [
-  { title: "Analytics", url: "/analytics", icon: BarChart3 },
-  { title: "Reports", url: "/reports", icon: TrendingUp },
-  { title: "A/B Tests", url: "/ab-tests", icon: Target },
+  { title: "Analytics", url: "dashboard//analytics", icon: BarChart3 },
+  { title: "Reports", url: "/dashboard/reports", icon: TrendingUp },
+  { title: "A/B Tests", url: "/dashboard/ab-tests", icon: Target },
 ]
 
 const systemItems = [
-  { title: "Settings", url: "/settings", icon: Settings },
-  { title: "Help", url: "/help", icon: HelpCircle },
+  { title: "Settings", url: "/dashboard/settings", icon: Settings },
+  { title: "Help", url: "/dashboard/help", icon: HelpCircle },
 ]
 
 export function AppSidebar() {

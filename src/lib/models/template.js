@@ -1,4 +1,4 @@
-import mongoose from "mongoose"
+import mongoose from "mongoose";
 
 const TemplateSchema = new mongoose.Schema(
   {
@@ -16,7 +16,7 @@ const TemplateSchema = new mongoose.Schema(
     category: {
       type: String,
       required: [true, "Category is required"],
-      enum: ["business", "newsletter", "promotional", "event", "announcement", "personal", "other"],
+      // enum: ["business", "newsletter", "promotional", "event", "announcement", "personal", "other", "welcome", "transactional", "abandoned-cart"],
       default: "other",
     },
     thumbnail: {
@@ -74,7 +74,9 @@ const TemplateSchema = new mongoose.Schema(
       createdBy: { type: String, default: null },
       tags: [{ type: String, trim: true }],
       isPublic: { type: Boolean, default: false },
+      isPremium: { type: Boolean, default: false }, // Added for TemplatesPage
       usageCount: { type: Number, default: 0 },
+      rating: { type: Number, default: 0, min: 0, max: 5 }, // Added for TemplatesPage
     },
     responsive: {
       mobile: { type: mongoose.Schema.Types.Mixed, default: {} },

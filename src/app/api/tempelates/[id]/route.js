@@ -1,31 +1,44 @@
 import { NextResponse } from "next/server"
 import { connectToDatabase } from '@/DB/db';
-import Template from "@/lib/models/template"
-import mongoose from "mongoose"
+import Template from "@/lib/models/template";
 
-// GET /api/templates/[id] - Get single template
+// GET /api/templates/:id - Get a single template by ID
 export async function GET(request, { params }) {
   try {
-    await connectDB()
+    await connectToDatabase()
 
     const { id } = params
 
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      return NextResponse.json({ success: false, error: "Invalid template ID" }, { status: 400 })
-    }
-
-    const template = await Template.findById(id)
+    const template = await Template.findById(id).lean()
 
     if (!template) {
-      return NextResponse.json({ success: false, error: "Template not found" }, { status: 404 })
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Template not found",
+        },
+        { status: 404 },
+      )
     }
 
-    // Increment usage count
-    await template.incrementUsage()
+    // Convert Date fields to ISO strings
+    const responseTemplate = {
+      ...template,
+      id: template._id.toString(),
+      tags: template.metadata.tags,
+      downloads: template.metadata.usageCount,
+      rating: template.metadata.rating,
+      isPremium: template.metadata.isPremium,
+      metadata: {
+        ...template.metadata,
+        createdAt: template.metadata.createdAt.toISOString(),
+        updatedAt: template.metadata.updatedAt.toISOString(),
+      },
+    }
 
     return NextResponse.json({
       success: true,
-      data: template,
+      data: responseTemplate,
     })
   } catch (error) {
     console.error(`GET /api/templates/${params.id} error:`, error)
@@ -40,86 +53,31 @@ export async function GET(request, { params }) {
   }
 }
 
-// PUT /api/templates/[id] - Update template
-export async function PUT(request, { params }) {
+// DELETE /api/templates/:id - Delete a template by ID
+export async function DELETE(request, { params }) {
   try {
-    await connectDB()
+    await connectToDatabase()
 
     const { id } = params
-    const body = await request.json()
-
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      return NextResponse.json({ success: false, error: "Invalid template ID" }, { status: 400 })
-    }
 
     const template = await Template.findById(id)
 
     if (!template) {
-      return NextResponse.json({ success: false, error: "Template not found" }, { status: 404 })
-    }
-
-    // Update fields
-    const allowedUpdates = ["name", "description", "category", "blocks", "styles", "responsive", "metadata"]
-    const updates = {}
-
-    allowedUpdates.forEach((field) => {
-      if (body[field] !== undefined) {
-        if (field === "metadata") {
-          updates.metadata = { ...template.metadata, ...body.metadata }
-        } else {
-          updates[field] = body[field]
-        }
-      }
-    })
-
-    const updatedTemplate = await Template.findByIdAndUpdate(id, updates, { new: true, runValidators: true })
-
-    return NextResponse.json({
-      success: true,
-      data: updatedTemplate,
-      message: "Template updated successfully",
-    })
-  } catch (error) {
-    console.error(`PUT /api/templates/${params.id} error:`, error)
-
-    if (error.name === "ValidationError") {
       return NextResponse.json(
         {
           success: false,
-          error: "Validation failed",
-          details: Object.values(error.errors).map((e) => e.message),
+          error: "Template not found",
         },
-        { status: 400 },
+        { status: 404 },
       )
     }
 
-    return NextResponse.json(
-      {
-        success: false,
-        error: "Failed to update template",
-        details: error.message,
-      },
-      { status: 500 },
-    )
-  }
-}
+    // Optional: Add authorization check (e.g., only owner can delete)
+    // if (template.metadata.createdBy !== userId) {
+    //   return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 403 })
+    // }
 
-// DELETE /api/templates/[id] - Delete template
-export async function DELETE(request, { params }) {
-  try {
-    await connectDB()
-
-    const { id } = params
-
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      return NextResponse.json({ success: false, error: "Invalid template ID" }, { status: 400 })
-    }
-
-    const template = await Template.findByIdAndDelete(id)
-
-    if (!template) {
-      return NextResponse.json({ success: false, error: "Template not found" }, { status: 404 })
-    }
+    await Template.deleteOne({ _id: id })
 
     return NextResponse.json({
       success: true,

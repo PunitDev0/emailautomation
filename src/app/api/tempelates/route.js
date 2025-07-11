@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server"
 import { connectToDatabase } from '@/DB/db';
-
 import Template from "@/lib/models/template";
 
 // GET /api/templates - Get all templates with filtering and pagination
@@ -45,7 +44,7 @@ export async function GET(request) {
     // Execute query with pagination
     const [templates, total] = await Promise.all([
       Template.find(query)
-        .select("-blocks") // Exclude blocks for list view to reduce payload
+        .select("name description category thumbnail metadata")
         .sort({ "metadata.createdAt": -1 })
         .skip(skip)
         .limit(limit)
@@ -53,10 +52,25 @@ export async function GET(request) {
       Template.countDocuments(query),
     ])
 
+    // Convert Date fields to ISO strings
+    const formattedTemplates = templates.map((template) => ({
+      ...template,
+      id: template._id.toString(),
+      tags: template.metadata.tags,
+      downloads: template.metadata.usageCount,
+      rating: template.metadata.rating,
+      isPremium: template.metadata.isPremium,
+      metadata: {
+        ...template.metadata,
+        createdAt: template.metadata.createdAt.toISOString(),
+        updatedAt: template.metadata.updatedAt.toISOString(),
+      },
+    }))
+
     return NextResponse.json({
       success: true,
       data: {
-        templates,
+        templates: formattedTemplates,
         pagination: {
           page,
           limit,
@@ -80,21 +94,84 @@ export async function GET(request) {
   }
 }
 
+// GET /api/templates/categories - Get category counts
+export async function GET_CATEGORIES(request) {
+  try {
+    await connectToDatabase()
+
+    const categories = [
+      "all",
+      "welcome",
+      "promotional",
+      "transactional",
+      "newsletter",
+      "abandoned-cart",
+      "business",
+      "event",
+      "announcement",
+      "personal",
+      "other",
+    ]
+
+    const counts = await Promise.all(
+      categories.map(async (category) => {
+        const query = category === "all" ? { "metadata.isPublic": true } : { category, "metadata.isPublic": true }
+        const count = await Template.countDocuments(query)
+        return { id: category, name: category === "all" ? "All Templates" : category.charAt(0).toUpperCase() + category.slice(1).replace("-", " "), count }
+      })
+    )
+
+    return NextResponse.json({
+      success: true,
+      data: counts,
+    })
+  } catch (error) {
+    console.error("GET /api/templates/categories error:", error)
+    return NextResponse.json(
+      {
+        success: false,
+        error: "Failed to fetch category counts",
+        details: error.message,
+      },
+      { status: 500 },
+    )
+  }
+}
+
 // POST /api/templates - Create new template
 export async function POST(request) {
   try {
-    await connectToDatabase ()
+    await connectToDatabase()
 
     const body = await request.json()
-    const { name, description, category, blocks, styles, metadata, responsive } = body
+    const { name, description, category, thumbnail, blocks, styles, metadata, responsive } = body
 
     // Validation
     if (!name || !name.trim()) {
       return NextResponse.json({ success: false, error: "Template name is required" }, { status: 400 })
     }
 
+    if (!category || !["business", "newsletter", "promotional", "event", "announcement", "personal", "other", "welcome", "transactional", "abandoned-cart"].includes(category)) {
+      return NextResponse.json({ success: false, error: "Valid category is required" }, { status: 400 })
+    }
+
     if (!blocks || !Array.isArray(blocks)) {
       return NextResponse.json({ success: false, error: "Template blocks are required" }, { status: 400 })
+    }
+
+    // Validate block types
+    const validBlockTypes = [
+      "text", "image", "button", "social", "divider", "spacer", "columns",
+      "video", "countdown", "survey", "form", "map", "chart", "testimonial",
+      "pricing", "gallery", "qr", "calendar"
+    ];
+    for (const block of blocks) {
+      if (!block.id || !block.type || !validBlockTypes.includes(block.type)) {
+        return NextResponse.json(
+          { success: false, error: `Invalid block type: ${block.type}` },
+          { status: 400 }
+        );
+      }
     }
 
     // Check if template name already exists for this user
@@ -110,26 +187,46 @@ export async function POST(request) {
     // Create new template
     const template = new Template({
       name: name.trim(),
-      description: description?.trim(),
-      category: category || "other",
+      description: description?.trim() || "",
+      category,
+      thumbnail: thumbnail || null,
       blocks,
       styles: styles || {},
+      responsive: responsive || { mobile: {}, tablet: {}, desktop: {} },
       metadata: {
-        version: "1.0.0",
+        version: metadata?.version || "1.0.0",
         createdBy: metadata?.createdBy || null,
         tags: metadata?.tags || [],
         isPublic: metadata?.isPublic || false,
-        usageCount: 0,
+        isPremium: metadata?.isPremium || false,
+        usageCount: metadata?.usageCount || 0,
+        rating: metadata?.rating || 0,
+        createdAt: new Date(),
+        updatedAt: metadata?.lastSaved ? new Date(metadata.lastSaved) : new Date(),
       },
-      responsive: responsive || { mobile: {}, tablet: {}, desktop: {} },
     })
 
     const savedTemplate = await template.save()
 
+    // Convert Date fields to ISO strings
+    const responseTemplate = {
+      ...savedTemplate.toObject(),
+      id: savedTemplate._id.toString(),
+      tags: savedTemplate.metadata.tags,
+      downloads: savedTemplate.metadata.usageCount,
+      rating: savedTemplate.metadata.rating,
+      isPremium: savedTemplate.metadata.isPremium,
+      metadata: {
+        ...savedTemplate.metadata,
+        createdAt: savedTemplate.metadata.createdAt.toISOString(),
+        updatedAt: savedTemplate.metadata.updatedAt.toISOString(),
+      },
+    }
+
     return NextResponse.json(
       {
         success: true,
-        data: savedTemplate,
+        data: responseTemplate,
         message: "Template created successfully",
       },
       { status: 201 },
